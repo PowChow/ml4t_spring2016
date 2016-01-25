@@ -73,7 +73,8 @@ if __name__ == "__main__":
     end_date = dt.datetime(2010, 12, 31)
     symbols = ['GOOG', 'AAPL', 'GLD', 'XOM'] #use this one for graded plot
     #symbols = ['AXP', 'HPQ', 'IBM', 'HNZ']
-    allocations = [0.2, 0.2, 0.4, 0.2]  #use this one for graded plot
+    #allocations = [0.2, 0.3, 0.4, 0.1]
+    allocations = [0.2, 0.2, 0.4, 0.2] # use this for grading
     #allocations = [0.0, 0.0, 0.0, 0.1]
     start_val = 1000000
     risk_free_rate = 0.0
