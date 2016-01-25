@@ -19,22 +19,46 @@ def assess_portfolio(sd = dt.datetime(2008,1,1), ed = dt.datetime(2009,1,1), \
     dates = pd.date_range(sd, ed)
     prices_all = get_data(syms, dates)  # automatically adds SPY
     prices = prices_all[syms]  # only portfolio symbols
-    prices_SPY = prices_all['SPY']  # only SPY, for comparison later
+    prices_SPY = prices_all['SPY']   # only SPY, for comparison later
+    prices_SPY_norm = prices_SPY / prices_SPY.ix[0]
 
     # Get daily portfolio value
-    port_val = prices_SPY # TODO add code here to compute daily portfolio values
+    # Calculates norm portfolio value for all but SPY
+    df_normed = prices / prices.ix[0]
+    df_alloc = df_normed * allocs
+    df_pos_vals = df_alloc * sv
+    port_val = df_pos_vals.sum(axis=1) #series will symbols portfolio value
+    port_val_norm = port_val / port_val.ix[0]
 
     # Get portfolio statistics (note: std_daily_ret = volatility)
-    cr, adr, sddr, sr = [0.25, 0.001, 0.0005, 2.1] # TODO add code here to compute stats
+    # Calculate - daily returns without first row
+    daily_port_rets = ((port_val / port_val.shift(1)) - 1)[1:]
+
+    # Calculate - cumulative returns: value of portfolio from beginning to the end
+    cr = (port_val[-1] / port_val[0]) -1
+
+    # Calculate - average daily returns
+    adr = daily_port_rets.mean()
+
+    # Calculate -- standard deviation of average return
+    sddr = daily_port_rets.std()
+
+    #caculate -- sharpe ratio
+    sr = (np.mean(daily_port_rets - rfr) / daily_port_rets.std()) * np.sqrt(252)
+
+    #Default statement to run code
+    #cr, adr, sddr, sr = [0.25, 0.001, 0.0005, 2.1]
 
     # Compare daily portfolio value with SPY using a normalized plot
     if gen_plot:
         # TODO add code to plot here
-        df_temp = pd.concat([port_val, prices_SPY], keys=['Portfolio', 'SPY'], axis=1)
-        pass
+        df_temp = pd.concat([port_val_norm, prices_SPY_norm], keys=['Portfolio', 'SPY'], axis=1)
+        ax = df_temp.plot(title ='Daily Portfolio Value and SPY', grid=True)
+        fig = ax.get_figure()
+        fig.savefig('output/plot.png')
 
     # TODO Add code here to properly compute end value
-    ev = sv
+    ev = sv * (1-cr)
 
     return cr, adr, sddr, sr, ev
 
@@ -45,11 +69,13 @@ if __name__ == "__main__":
     # Define input parameters
     # Note that ALL of these values will be set to different values by
     # the autograder!
-    start_date = dt.datetime(2010,1,1)
-    end_date = dt.datetime(2009,1,1)
-    symbols = ['GOOG', 'AAPL', 'GLD', 'XOM']
-    allocations = [0.2, 0.3, 0.4, 0.1]
-    start_val = 1000000  
+    start_date = dt.datetime(2010, 1, 1)
+    end_date = dt.datetime(2010, 12, 31)
+    symbols = ['GOOG', 'AAPL', 'GLD', 'XOM'] #use this one for graded plot
+    #symbols = ['AXP', 'HPQ', 'IBM', 'HNZ']
+    allocations = [0.2, 0.2, 0.4, 0.2]  #use this one for graded plot
+    #allocations = [0.0, 0.0, 0.0, 0.1]
+    start_val = 1000000
     risk_free_rate = 0.0
     sample_freq = 252
 
@@ -58,14 +84,15 @@ if __name__ == "__main__":
         syms = symbols, \
         allocs = allocations,\
         sv = start_val, \
-        gen_plot = False)
+        gen_plot = True)
 
     # Print statistics
-    print "Start Date:", start_date
-    print "End Date:", end_date
+    print "Start Date:", start_date.strftime('%Y-%m-%d')
+    print "End Date:", end_date.strftime('%Y-%m-%d')
     print "Symbols:", symbols
     print "Allocations:", allocations
-    print "Sharpe Ratio:", sr
-    print "Volatility (stdev of daily returns):", sddr
-    print "Average Daily Return:", adr
-    print "Cumulative Return:", cr
+    print "Sharpe Ratio (calc):", sr
+    print "Volatility (stdev of daily returns)(calc):", sddr
+    print "Average Daily Return (calc):", adr
+    print "Cumulative Return (calc):", cr
+    print "Ending Value of Portfolio (calc):", ev
