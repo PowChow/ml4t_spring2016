@@ -57,7 +57,7 @@ def optimize_portfolio(sd=dt.datetime(2008,1,1), ed=dt.datetime(2009,1,1), \
         df_temp = pd.concat([port_val_norm, prices_SPY_norm], keys=['Portfolio', 'SPY'], axis=1)
         ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=True)
         fig = ax.get_figure()
-        fig.savefig('output/plot.png')
+        fig.savefig('output/comparison_optimal.png')
 
     return list(optim_allocs.x), cr, adr, sddr, sr
 
@@ -109,12 +109,13 @@ if __name__ == "__main__":
     # Note that ALL of these values will be set to different values by
     # the autograder!
 
-    start_date = dt.datetime(2010,1,1)
+    start_date = dt.datetime(2009,1,1)
     end_date = dt.datetime(2010,12,31)
-    symbols = ['GOOG', 'AAPL', 'GLD', 'XOM'] #example 1
+    #symbols = ['GOOG', 'AAPL', 'GLD', 'XOM'] #example 1
     #symbols = ['AXP', 'HPQ', 'IBM', 'HNZ'] #example 2
     #symbols = ['YHOO', 'HPQ', 'GLD', 'HNZ'] #example 4
     #symbols = ['YHOO', 'XOM', 'GLD', 'HNZ']
+    symbols = ['IBM', 'AAPL', 'HNZ', 'XOM', 'GLD'] #hand in example
 
     # Assess the portfolio
     allocations, cr, adr, sddr, sr = optimize_portfolio(sd = start_date, ed = end_date,\
