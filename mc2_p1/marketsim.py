@@ -24,27 +24,21 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     df_trades = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
 
     #step by step order files
-    def log_trades(dt, o_sym, o_shares, o_sign):
+    def log_trades(dt, o_sym, o_shares, o_sign, o_sp):
         #log into trading table on date - sell or buy # of shares
         df_trades.loc[dt][o_sym] = o_shares * o_sign
-
-    def log_trade_cash(dt)
-        #add up cash value by day
-        df_trades.loc[dt]['cash'] = (o_sp * o_shares * o_sign) * -1
-
-
+        df_trades.loc[dt]['cash'] += (o_sp * o_shares * o_sign) * -1 # TODO does not take into consideration
 
     orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
-                                     o_sign=x.share_sign), axis=1)
+                                     o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
 
+    #accumulate asset value
+    df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    df_holdings['cash'][0] = start_val + df_trades['cash'][0]
 
-    # df_holdings = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
-    # df_holdings['cash'][0] = start_val
-    #
-
-
-
-    #dfHoldings.ix[x, y] = dfHoldings.ix[(x-1), y] + dfTrades.ix[x, y]
+    for r in df_holdings:
+        for c in df_holdings.iterrows():
+            df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_Trades.ix[x, y]
 
 
 
