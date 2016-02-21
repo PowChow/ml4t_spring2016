@@ -10,8 +10,12 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
     # TODO: Your code here
 
-    orders = pd.read_csv(orders_file, index= )
-    dates = pd.date_range(sd, ed)
+    orders = pd.read_csv(orders_file, index='Date', parse_dates=True, na_values=['nan'] )
+    orders.sort_index(inplace=True)
+    start_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
+    end_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
+    syms = list(orders.Symbols.unique())
+
 
 
     # In the template, instead of computing the value of the portfolio, we just
