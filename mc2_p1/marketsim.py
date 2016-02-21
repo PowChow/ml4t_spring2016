@@ -19,16 +19,23 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     df_prices['cash'] = 1
 
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
-    orders['stock_price'] = orders.apply(lambda x: prices.loc[x.name][x.Symbol], axis=1)
+    orders['stock_price'] = orders.apply(lambda x: df_prices.loc[x.name][x.Symbol], axis=1)
 
-    df_trades = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    df_trades = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
 
     #step by step order files
-    def log_order(dt, o_sym, o_shares, o_sign):
-        #log into holdings on date - sell or buy # of shares
+    def log_trades(dt, o_sym, o_shares, o_sign):
+        #log into trading table on date - sell or buy # of shares
         df_trades.loc[dt][o_sym] = o_shares * o_sign
 
-    orders.apply(lambda x: log_order(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares, o_sign=x.share_sign), axis=1)
+    def log_trade_cash(dt)
+        #add up cash value by day
+        df_trades.loc[dt]['cash'] = (o_sp * o_shares * o_sign) * -1
+
+
+
+    orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
+                                     o_sign=x.share_sign), axis=1)
 
 
     # df_holdings = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
