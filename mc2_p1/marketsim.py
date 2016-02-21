@@ -15,7 +15,8 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     start_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
     end_date = dt.datetime.strftime(orders.index.max(), '%Y-%m-%d')
     syms = list(orders.Symbol.unique())
-    df_prices = get_data(syms, pd.date_range(start_date, end_date))
+
+    df_prices = get_data(syms, pd.date_range(start_date, end_date), addSPY=False)
     df_prices['cash'] = 1
 
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
@@ -32,15 +33,18 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
                                      o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
 
-    #accumulate asset value
+    #df_holdings = accumulate asset value
     df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
     df_holdings['cash'][0] = start_val + df_trades['cash'][0]
 
     for y in range(0,len(df_holdings.columns)): # columns
         for x in range(0,len(df_holdings)):     # rows
+            if (y == 'cash') & (x == 0):
+                df_holdings.ix[x, y] = start_val + df_trades[x][y]
             df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_trades.ix[x, y]
 
-    df_value = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash']) #monetary value of assets on either one of these days
+    df_value = df_prices.multiply(df_holdings, axis='columns')
+    df_portval = df_value.sum(axis=1)
 
 
 
