@@ -24,31 +24,30 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     df_trades = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
 
-    #step by step order files
+    #step by step of orders and catalogs in df_trades
     def log_trades(dt, o_sym, o_shares, o_sign, o_sp):
         #log into trading table on date - sell or buy # of shares
         df_trades.loc[dt][o_sym] = o_shares * o_sign
         df_trades.loc[dt]['cash'] += (o_sp * o_shares * o_sign) * -1 # TODO does not take into consideration
 
-    orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
+    #exeutes step by step row application
+    tmp = orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
                                      o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
 
     #df_holdings = accumulate asset value
     df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    #sets the first row in holdings
+    df_holdings.iloc[0] = df_trades.iloc[0]
     df_holdings['cash'][0] = start_val + df_trades['cash'][0]
 
     for y in range(0,len(df_holdings.columns)): # columns
-        for x in range(0,len(df_holdings)):     # rows
-            if (y == 'cash') & (x == 0):
-                df_holdings.ix[x, y] = start_val + df_trades[x][y]
-            df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_trades.ix[x, y]
+        for x in range(1,len(df_holdings)):     # skips the first row
+                df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_trades.ix[x, y]
 
     df_value = df_prices.multiply(df_holdings, axis='columns')
     df_portval = df_value.sum(axis=1)
 
-
-
-    return portvals
+    return df_portval
 
 def test_code():
     # this is a helper function you can use to test your code
