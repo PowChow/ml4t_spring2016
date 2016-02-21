@@ -20,6 +20,8 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
     orders['stock_price'] = orders.apply(lambda x: prices.loc[x.name][x.Symbol], axis=1)
 
+    df_port = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash', 'leverage'])
+    df_port['cash'][0] = start_val
 
 
     return portvals
