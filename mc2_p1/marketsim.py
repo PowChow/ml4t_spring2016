@@ -47,6 +47,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     df_value = df_prices.multiply(df_holdings, axis='columns')
     df_portval = df_value.sum(axis=1)
+    df_portval.dropna(how='any', inplace=True)
 
     return df_portval
 
