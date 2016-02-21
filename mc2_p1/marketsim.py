@@ -36,9 +36,11 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
     df_holdings['cash'][0] = start_val + df_trades['cash'][0]
 
-    for r in df_holdings:
-        for c in df_holdings.iterrows():
-            df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_Trades.ix[x, y]
+    for y in range(0,len(df_holdings.columns)): # columns
+        for x in range(0,len(df_holdings)):     # rows
+            df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_trades.ix[x, y]
+
+    df_value = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash']) #monetary value of assets on either one of these days
 
 
 
