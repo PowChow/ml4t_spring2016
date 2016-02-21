@@ -16,7 +16,8 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     end_date = dt.datetime.strftime(orders.index.max(), '%Y-%m-%d')
     syms = list(orders.Symbol.unique())
 
-    df_prices = get_data(syms, pd.date_range(start_date, end_date), addSPY=False)
+    df_prices = get_data(syms, pd.date_range(start_date, end_date), addSPY=True)
+    df_prices.drop(['SPY'], axis=1, inplace=True) #drop index prices after using it to get trading only days
     df_prices['cash'] = 1
 
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
@@ -54,7 +55,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders.csv"
+    of = "./orders/test.csv"
     sv = 1000000
     rfr = 0.0
     sf=252.0
