@@ -10,20 +10,17 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
     # TODO: Your code here
 
-    orders = pd.read_csv(orders_file, index='Date', parse_dates=True, na_values=['nan'] )
+    orders = pd.read_csv(orders_file, index_col='Date', parse_dates=True, na_values=['nan'] )
     orders.sort_index(inplace=True)
     start_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
-    end_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
-    syms = list(orders.Symbols.unique())
+    end_date = dt.datetime.strftime(orders.index.max(), '%Y-%m-%d')
+    syms = list(orders.Symbol.unique())
+    prices = get_data(syms, pd.date_range(start_date, end_date))
+
+    orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
+    orders['stock_price'] = orders.apply(lambda x: prices.loc[x.name][x.Symbol], axis=1)
 
 
-
-    # In the template, instead of computing the value of the portfolio, we just
-    # read in the value of IBM over 6 months
-    start_date = dt.datetime(2008,1,1)
-    end_date = dt.datetime(2008,6,1)
-    portvals = get_data(['IBM'], pd.date_range(start_date, end_date))
-    portvals = portvals[['IBM']]  # remove SPY
 
     return portvals
 
