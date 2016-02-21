@@ -77,14 +77,12 @@ def test_code():
     std_daily_ret = daily_port_rets.std()
     sharpe_ratio = (np.mean(daily_port_rets - rfr) / daily_port_rets.std()) * np.sqrt(sf)
 
-    prices_SPY = get_data('$SPY', pd.date_range(start_date, end_date), addSPY=False)
-    daily_port_rets_SPY = ((prices_SPY / prices_SPY(1)) - 1)[1:]
-    cum_ret_SPY = (prices_SPY[-1] / prices_SPY[0]) -1  #cumulative returns of portfolio value
+    prices_SPY = get_data(['$SPX'], pd.date_range(start_date, end_date), addSPY=False)
+    daily_port_rets_SPY = ((prices_SPY / prices_SPY.shift(1)) - 1)[1:]
+    cum_ret_SPY = (prices_SPY.iloc[-1] / prices_SPY.iloc[0]) -1  #cumulative returns of portfolio value
     avg_daily_ret_SPY = daily_port_rets_SPY.mean()
     std_daily_ret_SPY = daily_port_rets_SPY.std()
     sharpe_ratio_SPY = (np.mean(daily_port_rets_SPY - rfr) / daily_port_rets_SPY.std()) * np.sqrt(sf)
-
-    cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY = [0.2,0.01,0.02,1.5]
 
     # Compare portfolio against $SPX
     print "Date Range: {} to {}".format(start_date, end_date)
