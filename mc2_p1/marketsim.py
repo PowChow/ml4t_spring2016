@@ -11,26 +11,33 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     # TODO: Your code here
 
     orders = pd.read_csv(orders_file, index_col='Date', parse_dates=True, na_values=['nan'] )
-    orders.sort_index(inplace=True)
+    orders.sort_index(inplace=True) #TODO check if reading in only trading dates only
     start_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
     end_date = dt.datetime.strftime(orders.index.max(), '%Y-%m-%d')
     syms = list(orders.Symbol.unique())
-    prices = get_data(syms, pd.date_range(start_date, end_date))
+    df_prices = get_data(syms, pd.date_range(start_date, end_date))
+    df_prices['cash'] = 1
 
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
     orders['stock_price'] = orders.apply(lambda x: prices.loc[x.name][x.Symbol], axis=1)
 
-    df_holdings = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
-    df_holdings['cash'][0] = start_val
+    df_trades = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
 
-    #step through orders to add requested buys and sells
-    def log_order(dt, o_sym, o_type, o_shares):
+    #step by step order files
+    def log_order(dt, o_sym, o_shares, o_sign):
         #log into holdings on date - sell or buy # of shares
-        df_holdings
+        df_trades.loc[dt][o_sym] = o_shares * o_sign
 
-    orders.apply(lambda x: log_order(x.name, x.Symbol, x.Order, x.Shares), axis=1)
+    orders.apply(lambda x: log_order(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares, o_sign=x.share_sign), axis=1)
 
 
+    # df_holdings = pd.DataFrame(index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    # df_holdings['cash'][0] = start_val
+    #
+
+
+
+    #dfHoldings.ix[x, y] = dfHoldings.ix[(x-1), y] + dfTrades.ix[x, y]
 
 
 
