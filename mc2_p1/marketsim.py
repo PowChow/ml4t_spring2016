@@ -54,8 +54,10 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders2.csv"
+    of = "./orders/orders.csv"
     sv = 1000000
+    rfr = 0.0
+    sf=252.0
 
     # Process orders
     portvals = compute_portvals(orders_file = of, start_val = sv)
@@ -66,9 +68,22 @@ def test_code():
     
     # Get portfolio stats
     # Here we just fake the data. you should use your code from previous assignments.
-    start_date = dt.datetime(2008,1,1)
-    end_date = dt.datetime(2008,6,1)
-    cum_ret, avg_daily_ret, std_daily_ret, sharpe_ratio = [0.2,0.01,0.02,1.5]
+    start_date = dt.datetime.strftime(portvals.index.min(), '%Y-%m-%d')
+    end_date = dt.datetime.strftime(portvals.index.max(), '%Y-%m-%d')
+
+    daily_port_rets = ((portvals / portvals.shift(1)) - 1)[1:]
+    cum_ret = (portvals[-1] / portvals[0]) -1  #cumulative returns of portfolio value
+    avg_daily_ret = daily_port_rets.mean()
+    std_daily_ret = daily_port_rets.std()
+    sharpe_ratio = (np.mean(daily_port_rets - rfr) / daily_port_rets.std()) * np.sqrt(sf)
+
+    prices_SPY = get_data('$SPY', pd.date_range(start_date, end_date), addSPY=False)
+    daily_port_rets_SPY = ((prices_SPY / prices_SPY(1)) - 1)[1:]
+    cum_ret_SPY = (prices_SPY[-1] / prices_SPY[0]) -1  #cumulative returns of portfolio value
+    avg_daily_ret_SPY = daily_port_rets_SPY.mean()
+    std_daily_ret_SPY = daily_port_rets_SPY.std()
+    sharpe_ratio_SPY = (np.mean(daily_port_rets_SPY - rfr) / daily_port_rets_SPY.std()) * np.sqrt(sf)
+
     cum_ret_SPY, avg_daily_ret_SPY, std_daily_ret_SPY, sharpe_ratio_SPY = [0.2,0.01,0.02,1.5]
 
     # Compare portfolio against $SPX
