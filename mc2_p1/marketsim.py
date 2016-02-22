@@ -66,7 +66,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
                     row_pos += df_holdings.iloc[row][col]
                 elif df_holdings.iloc[row][col] < 0:
                     row_neg += df_holdings.iloc[row][col]
-                cash = df_holdings.iloc[row]['cash']
+            cash += df_holdings.iloc[row]['cash']
             df_leverage.iloc[row] = (row_pos + abs(row_neg)) / (row_pos - abs(row_neg) + cash)
 
 
@@ -79,21 +79,23 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     #################################################################################################
 
     leverage, portval = execute_orders(orders)
-
+    print 'this is first leverage', leverage
     # Check leverage - Recalculate trades and holdings
     orders2 = orders
     for l in range(0, len(leverage)):
         over = 0
         # Executes step by step row Order execution
         if leverage.iloc[l]['lev'] > 2.0:
-            print 'over leveraged canceling order'
             over += 1
             orders2 = orders2.loc[orders2.index != leverage.index[l]]  # Cancel the trade from the orders
 
-    if over >  0:
-        leverage, portval = execute_orders(orders2)
-        return portval
+
+    if (over >  0):
+        leverage2, portval2 = execute_orders(orders2)
+        print 'some of your orders were cancelled'
+        return portval2
     else:
+        print 'all orders went through'
         return portval
 
 def test_code():
@@ -101,7 +103,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/test.csv"
+    of = "./orders/orders-leverage-3.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0
