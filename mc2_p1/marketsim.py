@@ -17,7 +17,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     def execute_orders(in_orders):
         start_date = dt.datetime.strftime(in_orders.index.min(), '%Y-%m-%d')
         end_date = dt.datetime.strftime(in_orders.index.max(), '%Y-%m-%d')
-        syms = list(orders.Symbol.unique())
+        syms = list(in_orders.Symbol.unique())
 
         df_prices = get_data(syms, pd.date_range(start_date, end_date), addSPY=True)
         df_prices.drop(['SPY'], axis=1, inplace=True) #drop index prices after using it to get trading only days
@@ -40,7 +40,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
         #calculates df_trades
         # exeutes step by step row Order execution
-        tmp = orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
+        tmp = in_orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
                                          o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
 
         #calculates holdings
@@ -63,11 +63,12 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
             cash = 0.0
             for col in range(0, len(df_holdings.columns)-1): #by columns
                 if df_holdings.iloc[row][col] >= 0:
-                    row_pos += df_holdings.iloc[row][col]
+                    row_pos += df_holdings.iloc[row][col] * df_prices.loc[df_holdings.index[row]][df_holdings.columns[col]]
                 elif df_holdings.iloc[row][col] < 0:
-                    row_neg += df_holdings.iloc[row][col]
+                    row_neg += df_holdings.iloc[row][col] * df_prices.loc[df_holdings.index[row]][df_holdings.columns[col]]
             cash += df_holdings.iloc[row]['cash']
-            df_leverage.iloc[row] = (row_pos + abs(row_neg)) / (row_pos - abs(row_neg) + cash)
+            df_leverage.iloc[row] = (row_pos + abs(row_neg)) / (row_pos - row_neg) + cash
+            print df_leverage.iloc[row]
 
 
         df_prices['cash']=1
@@ -89,10 +90,9 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
             over += 1
             orders2 = orders2.loc[orders2.index != leverage.index[l]]  # Cancel the trade from the orders
 
-
     if (over >  0):
-        leverage2, portval2 = execute_orders(orders2)
-        print 'some of your orders were cancelled'
+        leverage2, portval2 = execute_orders(in_orders=orders2)
+        print 'some orders were cancelled'
         return portval2
     else:
         print 'all orders went through'
@@ -103,7 +103,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders-leverage-3.csv"
+    of = "./orders/orders-leverage-2.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0
