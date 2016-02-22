@@ -35,7 +35,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
         #this function can be reiterated when checking for leverage
         def log_trades(dt, o_sym, o_shares, o_sign, o_sp):
             #log into trading table on date - sell or buy # of shares
-            df_trades.loc[dt][o_sym] = o_shares * o_sign
+            df_trades.loc[dt][o_sym] += o_shares * o_sign
             df_trades.loc[dt]['cash'] += (o_sp * o_shares * o_sign) * -1
 
         #calculates df_trades
@@ -67,7 +67,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
                 elif df_holdings.iloc[row][col] < 0:
                     row_neg += df_holdings.iloc[row][col] * df_prices.loc[df_holdings.index[row]][df_holdings.columns[col]]
             cash += df_holdings.iloc[row]['cash']
-            df_leverage.iloc[row] = (row_pos + abs(row_neg)) / ((row_pos + row_neg) + cash)
+            df_leverage.iloc[row] = (row_pos + abs(row_neg)) / ((row_pos - abs(row_neg)) + cash)
             #print df_leverage.iloc[row]
 
 
@@ -99,7 +99,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders-leverage-3.csv"
+    of = "./orders/orders3.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0
