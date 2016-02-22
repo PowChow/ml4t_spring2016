@@ -19,30 +19,36 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     df_prices = get_data(syms, pd.date_range(start_date, end_date), addSPY=True)
     df_prices.drop(['SPY'], axis=1, inplace=True) #drop index prices after using it to get trading only days
     df_prices['cash'] = 1
+    df_copy = df_prices #use as a place holder because it messages with prices
 
     orders['share_sign'] = orders.apply(lambda x: -1.0 if x['Order'] == 'SELL' else 1.0, axis=1)
     orders['stock_price'] = orders.apply(lambda x: df_prices.loc[x.name][x.Symbol], axis=1)
 
-    df_trades = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    #dataframe logs trades by date
+    df_trades = df_copy.copy(deep=False)
+    df_trades.ix[:] = 0
 
     #step by step of orders and catalogs in df_trades
+    #this function can be reiterated when checking for leverage
     def log_trades(dt, o_sym, o_shares, o_sign, o_sp):
         #log into trading table on date - sell or buy # of shares
         df_trades.loc[dt][o_sym] = o_shares * o_sign
-        df_trades.loc[dt]['cash'] += (o_sp * o_shares * o_sign) * -1 # TODO does not take into consideration
+        df_trades.loc[dt]['cash'] += (o_sp * o_shares * o_sign) * -1
 
-    #exeutes step by step row application
+    #exeutes step by step row Order execution
     tmp = orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
                                      o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
 
-    #df_holdings = accumulate asset value
-    df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    # dataframe accumulate asset value
+    #df_holdings = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= syms + ['cash'])
+    df_holdings = df_copy.copy(deep=False)
+    df_holdings[:] = 0
+
     #sets the first row in holdings
     df_holdings.iloc[0] = df_trades.iloc[0]
     df_holdings['cash'][0] = start_val + df_trades['cash'][0]
-    #df_holdings['leverage'] = 0
 
-    df_leverage = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= ['lev'])
+    df_leverage = pd.DataFrame(0, index=df_copy.index, columns=['lev'])
 
     for x in range(1,len(df_holdings)):     # skips the first row
         for y in range(0,len(df_holdings.columns)): # columns
@@ -59,8 +65,22 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
                 row_neg += df_holdings.iloc[row][col]
             cash = df_holdings.iloc[row]['cash']
         df_leverage.iloc[row] = (row_pos + abs(row_neg)) / (row_pos - abs(row_neg) + cash)
-        #print df_leverage.iloc[row]
 
+    #check leverage - recalcluate trades and holdings
+    orders2 = orders
+    for l in range(0, len(df_leverage)):
+        #exeutes step by step row Order execution
+        if df_leverage.iloc[l]['lev'] > 2.0:
+            #cancel the trade from the orders
+            #Orders.ix['2011-08-01']
+
+            orders2.drop(orders.ix[df_leverage.index[l]], axis=0, inplace=True)
+
+
+        tmp = orders.apply(lambda x: log_trades(dt=x.name, o_sym=x.Symbol, o_shares=x.Shares,
+                                         o_sign=x.share_sign, o_sp = x.stock_price), axis=1)
+
+    df_prices['cash']=1
     df_value = df_prices.multiply(df_holdings, axis='columns')
     df_portval = df_value.sum(axis=1)
     df_portval.dropna(how='any', inplace=True)
@@ -75,10 +95,10 @@ def test_code():
     of = "./orders/test.csv"
     sv = 1000000
     rfr = 0.0
-    sf=252.0
+    sf = 252.0
 
     # Process orders
-    portvals = compute_portvals(orders_file = of, start_val = sv)
+    portvals = compute_portvals(orders_file=of, start_val=sv)
     if isinstance(portvals, pd.DataFrame):
         portvals = portvals[portvals.columns[0]]# just get the first column
     else:
