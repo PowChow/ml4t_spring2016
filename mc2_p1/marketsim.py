@@ -99,7 +99,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders3.csv"
+    of = "./orders/orders-short.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0
