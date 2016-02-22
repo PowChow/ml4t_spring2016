@@ -44,17 +44,22 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     df_leverage = pd.DataFrame(0, index=pd.date_range(start_date, end_date), columns= ['lev'])
 
-    for y in range(0,len(df_holdings.columns)): # columns
-        for x in range(1,len(df_holdings)):     # skips the first row -- TODO flip
+    for x in range(1,len(df_holdings)):     # skips the first row
+        for y in range(0,len(df_holdings.columns)): # columns
             df_holdings.ix[x, y] = df_holdings.ix[(x-1), y] + df_trades.ix[x, y]
 
-    for row in len(df_holdings): #by row
-        row_lev = 0
-        for col in range(0, df_holdings ): #by columns
-
-            df_holdings.iloc[h]['lev'] =
-
-
+    for row in range(0, len(df_holdings)): #by row
+        row_pos = 0.0
+        row_neg = 0.0
+        cash = 0.0
+        for col in range(0, len(df_holdings.columns)-1 ): #by columns
+            if df_holdings.iloc[row][col] >= 0:
+                row_pos += df_holdings.iloc[row][col]
+            elif df_holdings.iloc[row][col] < 0:
+                row_neg += df_holdings.iloc[row][col]
+            cash = df_holdings.iloc[row]['cash']
+        df_leverage.iloc[row] = (row_pos + abs(row_neg)) / (row_pos - abs(row_neg) + cash)
+        #print df_leverage.iloc[row]
 
     df_value = df_prices.multiply(df_holdings, axis='columns')
     df_portval = df_value.sum(axis=1)
@@ -75,7 +80,7 @@ def test_code():
     # Process orders
     portvals = compute_portvals(orders_file = of, start_val = sv)
     if isinstance(portvals, pd.DataFrame):
-        portvals = portvals[portvals.columns[0]] # just get the first column
+        portvals = portvals[portvals.columns[0]]# just get the first column
     else:
         "warning, code did not return a DataFrame"
     
