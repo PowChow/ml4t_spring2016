@@ -1,9 +1,11 @@
 """MC2-P1: Market simulator."""
 
-import pandas as pd
 import numpy as np
-from marketsim import compute_portvals
+import pandas as pd
 from analysis import compute_portfolio_stats
+
+from mc2_p2.marketsim import compute_portvals
+
 
 def test_case(of,sd,ed,ret,avg,std,sharp,fin,sv=1000000):
     portvals = compute_portvals(orders_file = of, start_val = sv)
