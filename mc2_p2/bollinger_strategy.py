@@ -64,17 +64,23 @@ def get_bollinger_strategy(df):
 #above_lower = prices_with_bb['IBM'] > prices_with_bb['LOWER BB']
 #go_long = (above_lower.shift(1) == False) & above_lower
 
+    df_shift = df.shift(1)
+
     for i in range(0, len(df)):
-        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False):
+        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False) and \
+                (df_shift.ix[i]['Price'] <= df_shift.ix[i]['upper_band']):
             out_orders.append([df.index[i],'IBM', 'BUY', 'Short'])
             invested = True
-        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True):
+        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested == True) and \
+                (df_shift.ix[i]['Price'] <= df.ix[i]['SMA']):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short'])
             invested = False
-        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested == False):
+        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested == False) and \
+                (df_shift.ix[i]['Price'] >= df_shift.ix[i]['lower_band']):
             out_orders.append([df.index[i], 'IBM', 'BUY', 'Long'])
             invested = True
-        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested == True):
+        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True) and \
+            (df_shift.ix[i]['Price'] >= df_shift.ix[i]['SMA']):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long'])
             invested = False
         else:
