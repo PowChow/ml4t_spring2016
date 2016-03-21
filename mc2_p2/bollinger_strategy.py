@@ -50,7 +50,7 @@ def get_bollinger_bands(rm, rstd):
     lower_band = rm - (2*rstd)
     return upper_band, lower_band
 
-def get_strategy(df):
+def get_bollinger_strategy(df):
     """Implementation strategy based on Bollinger Bands"""
     """Returns data frame of orders"""
     # Long entries as a vertical green line at the time of entry.
@@ -61,19 +61,20 @@ def get_strategy(df):
     out_orders = []
     invested = False #indicator for deciding on exit or entry
 
-    for n in df:
-        if (df['IBM'] > df['upper']) and invested = False:
-            out_orders.append(df.ix[n]['Date'],'IBM', 'BUY')
+    for i in range(0, len(df)):
+        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False):
+            out_orders.append([df.index[i],'IBM', 'BUY', 'Short'])
             invested = True
-        elif (df['IBM'] < df['upper']) AND invested = True:
-            out_orders.append(df.ix[n]['Date'],'IBM', 'SELL')
+        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True):
+            out_orders.append([df.index[i],'IBM', 'SELL', 'Short'])
             invested = False
+        else:
+            pass
 
     #convert orders to dataframe
-    df_orders = pd.DataFrame(out_orders, columns=['Date', 'Symbol', 'Order'],
-                             index='Date')
+    df_orders = pd.DataFrame(out_orders,
+                             columns=['Date', 'Symbol', 'Order', 'Type'])
     return df_orders
-
 
 
 def test_run():
@@ -93,20 +94,30 @@ def test_run():
     upper_band, lower_band = get_bollinger_bands(rm_IBM, rstd_IBM)
 
     # 4. Add signals for buy and sell
+    combo_df = pd.concat([df['IBM'], rm_IBM, upper_band, lower_band], axis=1)
+    combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
+    combo_df.rename(index={0:'Date'}, inplace=True)
 
-    combo_df = pd.concat([df['IBM'], upper_band, lower_band], axis=1)
     orders = get_bollinger_strategy(combo_df)
 
     # Plot raw SPY values, rolling mean and Bollinger Bands
     ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
-    rm_IBM.plot(label='Rolling mean', ax=ax)
-    upper_band.plot(label='upper band', ax=ax)
-    lower_band.plot(label='lower band', ax=ax)
+    rm_IBM.plot(label='SMA', color='yellow', ax=ax)
+    combo_df[['upper_band', 'lower_band']].plot(label='Bollinger Bands', color='cyan', ax=ax)
+
+    # Plot vertical lines for shorts
+    for i in range(0, len(orders)):
+        if (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['Order'] == 'BUY'):
+            ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
+        elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['Order'] == 'SELL'):
+            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+
+    # Plot vertical lines for longs
 
     # Add axis labels and legend
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
-    ax.legend(loc='upper left')
+    ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
     plt.show()
 
 
