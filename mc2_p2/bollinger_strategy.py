@@ -1,29 +1,22 @@
 """MC2-P2: Bollinger Bands and Trading Strategy """
 
 import pandas as pd
+import os
 import numpy as np
 import datetime as dt
-from util import get_data, plot_data
 import matplotlib.pyplot as plt
 import marketsim as ms
 import scipy.optimize as spo
 
-
-
-import os
-import pandas as pd
-import matplotlib.pyplot as plt
-
-def symbol_to_path(symbol, base_dir="data"):
+def symbol_to_path(symbol, base_dir=os.path.join("..", "data")):
     """Return CSV file path given ticker symbol."""
     return os.path.join(base_dir, "{}.csv".format(str(symbol)))
 
-
-def get_data(symbols, dates):
+def get_data(symbols, dates, addSPY=True):
     """Read stock data (adjusted close) for given symbols from CSV files."""
     df = pd.DataFrame(index=dates)
-    if 'SPY' not in symbols:  # add SPY for reference, if absent
-        symbols.insert(0, 'SPY')
+    if addSPY and 'SPY' not in symbols:  # add SPY for reference, if absent
+        symbols = ['SPY'] + symbols
 
     for symbol in symbols:
         df_temp = pd.read_csv(symbol_to_path(symbol), index_col='Date',
@@ -32,57 +25,81 @@ def get_data(symbols, dates):
         df = df.join(df_temp)
         if symbol == 'SPY':  # drop dates SPY did not trade
             df = df.dropna(subset=["SPY"])
-
     return df
 
 
-def plot_data(df, title="Stock prices"):
+def plot_data(df, title="Stock prices", xlabel="Date", ylabel="Price"):
     """Plot stock prices with a custom title and meaningful axis labels."""
     ax = df.plot(title=title, fontsize=12)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
     plt.show()
-
 
 def get_rolling_mean(values, window):
     """Return rolling mean of given values, using specified window size."""
     return pd.rolling_mean(values, window=window)
 
-
 def get_rolling_std(values, window):
     """Return rolling standard deviation of given values, using specified window size."""
-    # TODO: Compute and return rolling standard deviation
     return pd.rolling_std(values, window=window)
-
 
 def get_bollinger_bands(rm, rstd):
     """Return upper and lower Bollinger Bands."""
-    # TODO: Compute upper_band and lower_band
     # Add 2sd above and below the rolling mean
     upper_band = rm + (2*rstd)
     lower_band = rm - (2*rstd)
     return upper_band, lower_band
 
+def get_strategy(df):
+    """Implementation strategy based on Bollinger Bands"""
+    """Returns data frame of orders"""
+    # Long entries as a vertical green line at the time of entry.
+    # Long exits as a vertical black line at the time of exit.
+    # Short entries as a vertical RED line at the time of entry.
+    # Short exits as a vertical black line at the time of exit.
+
+    out_orders = []
+    invested = False #indicator for deciding on exit or entry
+
+    for n in df:
+        if (df['IBM'] > df['upper']) and invested = False:
+            out_orders.append(df.ix[n]['Date'],'IBM', 'BUY')
+            invested = True
+        elif (df['IBM'] < df['upper']) AND invested = True:
+            out_orders.append(df.ix[n]['Date'],'IBM', 'SELL')
+            invested = False
+
+    #convert orders to dataframe
+    df_orders = pd.DataFrame(out_orders, columns=['Date', 'Symbol', 'Order'],
+                             index='Date')
+    return df_orders
+
+
 
 def test_run():
     # Read data
-    dates = pd.date_range('2012-01-01', '2012-12-31')
-    symbols = ['SPY']
-    df = get_data(symbols, dates)
+    dates = pd.date_range('2008-02-28', '2009-12-29')
+    symbols = list(['IBM'])
+    df = get_data(symbols, dates, addSPY=True)
 
     # Compute Bollinger Bands
     # 1. Compute rolling mean
-    rm_SPY = get_rolling_mean(df['SPY'], window=20)
+    rm_IBM = get_rolling_mean(df['IBM'], window=20)
 
     # 2. Compute rolling standard deviation
-    rstd_SPY = get_rolling_std(df['SPY'], window=20)
+    rstd_IBM = get_rolling_std(df['IBM'], window=20)
 
     # 3. Compute upper and lower bands
-    upper_band, lower_band = get_bollinger_bands(rm_SPY, rstd_SPY)
+    upper_band, lower_band = get_bollinger_bands(rm_IBM, rstd_IBM)
+
+    # 4. Add signals for buy and sell
+
+    combo_df = pd.concat([df['IBM'], upper_band, lower_band], axis=1)
+    orders = get_bollinger_strategy(combo_df)
 
     # Plot raw SPY values, rolling mean and Bollinger Bands
-    ax = df['SPY'].plot(title="Bollinger Bands", label='SPY')
-    rm_SPY.plot(label='Rolling mean', ax=ax)
+    ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
+    rm_IBM.plot(label='Rolling mean', ax=ax)
     upper_band.plot(label='upper band', ax=ax)
     lower_band.plot(label='lower band', ax=ax)
 
@@ -95,4 +112,3 @@ def test_run():
 
 if __name__ == "__main__":
     test_run()
-

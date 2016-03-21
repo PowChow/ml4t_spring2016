@@ -3,12 +3,10 @@
 import pandas as pd
 import numpy as np
 import datetime as dt
-import os
-from mc2_p1.util import get_data, plot_data
+from util import get_data, plot_data
 
 def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
-    # TODO: Your code here
 
     orders = pd.read_csv(orders_file, index_col='Date', parse_dates=True, na_values=['nan'] )
     orders.sort_index(inplace=True)
