@@ -108,7 +108,6 @@ def test_run():
     #print combo_df
 
     orders = get_bollinger_strategy(combo_df)
-    orders.to_csv('output/baseline_orders.csv')
 
     # Plot raw SPY values, rolling mean and Bollinger Bands
     ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
@@ -136,8 +135,22 @@ def test_run():
     fig = ax.get_figure()
     fig.savefig('output/bollinger_band_strategy.png')
 
-    #prep strategy for market simulator
+    orders['Shares'] = 100
 
+    #prep strategy for market simulator
+    if i in range(0, len(orders)):
+        if (orders['BB_Strat'] == 'BUY') and (orders['Type'] == 'Long'):
+            orders['Order'] = 'BUY'
+        elif (orders['BB_Strat'] == 'SELL') and (orders['Type'] == 'Long'):
+            orders['Order'] = 'SELL'
+        elif (orders['BB_Strat'] == 'BUY') and (orders['Type'] == 'Short'):
+            orders['Order'] = 'SELL'
+        elif (orders['BB_Strat'] == 'SELL') and (orders['Type'] == 'Short'):
+            orders['Order'] = 'BUY'
+        else:
+            pass
+
+    orders.to_csv('output/baseline_orders.csv', index=orders['Date'])
 
 
 if __name__ == "__main__":
