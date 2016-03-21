@@ -82,7 +82,7 @@ def get_bollinger_strategy(df):
 
     # Convert orders to data frame
     df_orders = pd.DataFrame(out_orders,
-                             columns=['Date', 'Symbol', 'Order', 'Type'])
+                             columns=['Date', 'Symbol', 'BB_Strat', 'Type'])
     return df_orders
 
 def test_run():
@@ -117,13 +117,13 @@ def test_run():
 
     # Plot vertical lines for shorts
     for i in range(0, len(orders)):
-        if (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['Order'] == 'BUY'):
+        if (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'BUY'):
             ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['Order'] == 'SELL'):
+        elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'SELL'):
             ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['Order'] == 'BUY'):
+        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'BUY'):
             ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['Order'] == 'SELL'):
+        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'SELL'):
             ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
         else:
             pass
@@ -135,6 +135,9 @@ def test_run():
     plt.show()
     fig = ax.get_figure()
     fig.savefig('output/bollinger_band_strategy.png')
+
+    #prep strategy for market simulator
+
 
 
 if __name__ == "__main__":
