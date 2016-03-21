@@ -61,6 +61,9 @@ def get_bollinger_strategy(df):
     out_orders = []
     invested = False #indicator for deciding on exit or entry
 
+#above_lower = prices_with_bb['IBM'] > prices_with_bb['LOWER BB']
+#go_long = (above_lower.shift(1) == False) & above_lower
+
     for i in range(0, len(df)):
         if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False):
             out_orders.append([df.index[i],'IBM', 'BUY', 'Short'])
@@ -68,10 +71,16 @@ def get_bollinger_strategy(df):
         elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short'])
             invested = False
+        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested == False):
+            out_orders.append([df.index[i], 'IBM', 'BUY', 'Long'])
+            invested = True
+        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested == True):
+            out_orders.append([df.index[i], 'IBM', 'SELL', 'Long'])
+            invested = False
         else:
             pass
 
-    #convert orders to dataframe
+    # Convert orders to data frame
     df_orders = pd.DataFrame(out_orders,
                              columns=['Date', 'Symbol', 'Order', 'Type'])
     return df_orders
@@ -99,6 +108,7 @@ def test_run():
     combo_df.rename(index={0:'Date'}, inplace=True)
 
     orders = get_bollinger_strategy(combo_df)
+    #print orders
 
     # Plot raw SPY values, rolling mean and Bollinger Bands
     ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
@@ -111,8 +121,12 @@ def test_run():
             ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
         elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['Order'] == 'SELL'):
             ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
-
-    # Plot vertical lines for longs
+        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['Order'] == 'BUY'):
+            ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
+        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['Order'] == 'SELL'):
+            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+        else:
+            pass
 
     # Add axis labels and legend
     ax.set_xlabel("Date")
