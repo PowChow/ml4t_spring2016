@@ -53,34 +53,28 @@ def get_bollinger_bands(rm, rstd):
 def get_bollinger_strategy(df):
     """Implementation strategy based on Bollinger Bands"""
     """Returns data frame of orders"""
-    # Long entries as a vertical green line at the time of entry.
-    # Long exits as a vertical black line at the time of exit.
-    # Short entries as a vertical RED line at the time of entry.
-    # Short exits as a vertical black line at the time of exit.
 
     out_orders = []
     invested = False #indicator for deciding on exit or entry
 
-#above_lower = prices_with_bb['IBM'] > prices_with_bb['LOWER BB']
-#go_long = (above_lower.shift(1) == False) & above_lower
-
     df_shift = df.shift(1)
+    df_shift_2 = df.shift(2)
 
     for i in range(0, len(df)):
         if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False) and \
                 (df_shift.ix[i]['Price'] <= df_shift.ix[i]['upper_band']):
             out_orders.append([df.index[i],'IBM', 'BUY', 'Short'])
             invested = True
-        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested == True) and \
+        elif (df.ix[i]['Price'] >= df.ix[i]['SMA']) and (invested == True) and \
                 (df_shift.ix[i]['Price'] <= df.ix[i]['SMA']):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short'])
             invested = False
-        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested == False) and \
+        elif (df.ix[i]['Price'] <= df.ix[i]['lower_band']) and (invested == False) and \
                 (df_shift.ix[i]['Price'] >= df_shift.ix[i]['lower_band']):
             out_orders.append([df.index[i], 'IBM', 'BUY', 'Long'])
             invested = True
         elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True) and \
-            (df_shift.ix[i]['Price'] >= df_shift.ix[i]['SMA']):
+                (df_shift.ix[i]['Price'] >= df_shift.ix[i]['SMA']):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long'])
             invested = False
         else:
@@ -91,10 +85,9 @@ def get_bollinger_strategy(df):
                              columns=['Date', 'Symbol', 'Order', 'Type'])
     return df_orders
 
-
 def test_run():
     # Read data
-    dates = pd.date_range('2008-02-28', '2009-12-29')
+    dates = pd.date_range('2007-12-31', '2009-12-31')
     symbols = list(['IBM'])
     df = get_data(symbols, dates, addSPY=True)
 
@@ -112,9 +105,10 @@ def test_run():
     combo_df = pd.concat([df['IBM'], rm_IBM, upper_band, lower_band], axis=1)
     combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
     combo_df.rename(index={0:'Date'}, inplace=True)
+    #print combo_df
 
     orders = get_bollinger_strategy(combo_df)
-    #print orders
+    orders.to_csv('output/baseline_orders.csv')
 
     # Plot raw SPY values, rolling mean and Bollinger Bands
     ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
@@ -139,6 +133,8 @@ def test_run():
     ax.set_ylabel("Price")
     ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
     plt.show()
+    fig = ax.get_figure()
+    fig.savefig('output/bollinger_band_strategy.png')
 
 
 if __name__ == "__main__":
