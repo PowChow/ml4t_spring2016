@@ -59,23 +59,22 @@ def get_bollinger_strategy(df):
     invested_long = False
 
     df_shift = df.shift(1)
-    df_shift_2 = df.shift(2)
 
     for i in range(0, len(df)):
-        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested_short == False) and \
-                (df_shift.ix[i]['Price'] <= df_shift.ix[i]['upper_band']):
+        if (df.ix[i]['Price'] < df.ix[i]['upper_band']) and (invested_short == False) and \
+                (df_shift.ix[i]['Price'] > df_shift.ix[i]['upper_band']):
             out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
             invested_short = True
-        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested_short == True) and \
-                (df_shift.ix[i]['Price'] <= df.ix[i]['SMA']):
+        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested_short == True) and \
+                (df_shift.ix[i]['Price'] > df.ix[i]['SMA']):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
             invested_short = False
-        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested_long == False) and \
-                (df_shift.ix[i]['Price'] >= df_shift.ix[i]['lower_band']):
+        elif (df.ix[i]['Price'] > df.ix[i]['lower_band']) and (invested_long == False) and \
+                (df_shift.ix[i]['Price'] < df_shift.ix[i]['lower_band']):
             out_orders.append([df.index[i], 'IBM', 'BUY', 'Long', 'BUY'])
             invested_long = True
-        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested_long == True) and \
-                (df_shift.ix[i]['Price'] >= df_shift.ix[i]['SMA']):
+        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested_long == True) and \
+                (df_shift.ix[i]['Price'] < df_shift.ix[i]['SMA']):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
             invested_long = False
         else:
@@ -106,7 +105,7 @@ def test_run():
     combo_df = pd.concat([df['IBM'], rm_IBM, upper_band, lower_band], axis=1)
     combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
     combo_df.rename(index={0:'Date'}, inplace=True)
-    #print combo_df
+    combo_df.to_csv('IBM.csv')
 
     orders = get_bollinger_strategy(combo_df)
 
