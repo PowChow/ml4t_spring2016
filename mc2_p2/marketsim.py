@@ -92,12 +92,69 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     return portval2
 
+def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True):
+
+    rfr = 0.0
+    sf = 252.0
+
+    # Process orders
+    portvals = compute_portvals(orders_file=of, start_val=sv)
+    if isinstance(portvals, pd.DataFrame):
+        portvals = portvals[portvals.columns[0]]# just get the first column
+    else:
+        "warning, code did not return a DataFrame"
+
+    # Get portfolio stats
+    # Here we just fake the data. you should use your code from previous assignments.
+    start_date = dt.datetime.strftime(portvals.index.min(), '%Y-%m-%d')
+    end_date = dt.datetime.strftime(portvals.index.max(), '%Y-%m-%d')
+
+    daily_port_rets = ((portvals / portvals.shift(1)) - 1)[1:]
+    portval_norm = portvals / portvals.ix[0]
+    cum_ret = (portvals[-1] / portvals[0]) -1  #cumulative returns of portfolio value
+    avg_daily_ret = daily_port_rets.mean()
+    std_daily_ret = daily_port_rets.std()
+    sharpe_ratio = (np.mean(daily_port_rets - rfr) / daily_port_rets.std()) * np.sqrt(sf)
+
+    prices_SPY = get_data(['$SPX'], pd.date_range(start_date, end_date), addSPY=False)
+    prices_SPY_norm = prices_SPY / prices_SPY.ix[0]
+    daily_port_rets_SPY = ((prices_SPY / prices_SPY.shift(1)) - 1)[1:]
+    cum_ret_SPY = (prices_SPY.iloc[-1] / prices_SPY.iloc[0]) -1  #cumulative returns of portfolio value
+    avg_daily_ret_SPY = daily_port_rets_SPY.mean()
+    std_daily_ret_SPY = daily_port_rets_SPY.std()
+    sharpe_ratio_SPY = (np.mean(daily_port_rets_SPY - rfr) / daily_port_rets_SPY.std()) * np.sqrt(sf)
+
+    # Compare portfolio against $SPX
+    print "Date Range: {} to {}".format(start_date, end_date)
+    print
+    print "Sharpe Ratio of Fund: {}".format(sharpe_ratio)
+    print "Sharpe Ratio of SPY : {}".format(sharpe_ratio_SPY)
+    print
+    print "Cumulative Return of Fund: {}".format(cum_ret)
+    print "Cumulative Return of SPY : {}".format(cum_ret_SPY)
+    print
+    print "Standard Deviation of Fund: {}".format(std_daily_ret)
+    print "Standard Deviation of SPY : {}".format(std_daily_ret_SPY)
+    print
+    print "Average Daily Return of Fund: {}".format(avg_daily_ret)
+    print "Average Daily Return of SPY : {}".format(avg_daily_ret_SPY)
+    print
+    print "Final Portfolio Value: {}".format(portvals[-1])
+
+    if gen_plot:
+        #Plots comparison between IBM and $SPY
+        df_temp = pd.concat([portval_norm, prices_SPY_norm], keys=['Portfolio', 'SPY'], axis=1)
+        ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=True)
+        fig = ax.get_figure()
+        fig.savefig('output/comparison_chart.png')
+
+
 def test_code():
     # this is a helper function you can use to test your code
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./orders/orders-short.csv"
+    of = "./output/baseline_orders.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0

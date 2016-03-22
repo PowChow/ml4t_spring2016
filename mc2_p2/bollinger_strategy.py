@@ -132,27 +132,18 @@ def test_run():
     ax.set_xlabel("Date")
     ax.set_ylabel("Price")
     ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
-    plt.show()
+    #plt.show()
     fig = ax.get_figure()
     fig.savefig('output/bollinger_band_strategy.png')
+
 
     #prep orders for market simulator
     orders['Shares'] = 100
     orders.set_index('Date', inplace=True)
-    orders[['Symbol', 'Order', 'Shares']].to_csv('output/baseline_orders.csv')
+    orders[['Symbol', 'Order', 'Shares']].to_csv('output/orders.csv')
 
     #send order to marketsims
-    of = "./output/baseline_orders.csv"
-    sv = 10000
-    rfr = 0.0
-    sf = 252.0
-
-    # Process orders
-    portvals = compute_portvals(orders_file=of, start_val=sv)
-    if isinstance(portvals, pd.DataFrame):
-        portvals = portvals[portvals.columns[0]]# just get the first column
-    else:
-        "warning, code did not return a DataFrame"
+    ms.sims_output(sv=10000, of="./output/orders.csv" )
 
 
 if __name__ == "__main__":
