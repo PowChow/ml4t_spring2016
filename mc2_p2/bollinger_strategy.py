@@ -55,34 +55,35 @@ def get_bollinger_strategy(df):
     """Returns data frame of orders"""
 
     out_orders = []
-    invested = False #indicator for deciding on exit or entry
+    invested_short = False #indicator for deciding on exit or entry
+    invested_long = False
 
     df_shift = df.shift(1)
     df_shift_2 = df.shift(2)
 
     for i in range(0, len(df)):
-        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested == False) and \
+        if (df.ix[i]['Price'] > df.ix[i]['upper_band']) and (invested_short == False) and \
                 (df_shift.ix[i]['Price'] <= df_shift.ix[i]['upper_band']):
-            out_orders.append([df.index[i],'IBM', 'BUY', 'Short'])
-            invested = True
-        elif (df.ix[i]['Price'] >= df.ix[i]['SMA']) and (invested == True) and \
+            out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
+            invested_short = True
+        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested_short == True) and \
                 (df_shift.ix[i]['Price'] <= df.ix[i]['SMA']):
-            out_orders.append([df.index[i],'IBM', 'SELL', 'Short'])
-            invested = False
-        elif (df.ix[i]['Price'] <= df.ix[i]['lower_band']) and (invested == False) and \
+            out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
+            invested_short = False
+        elif (df.ix[i]['Price'] < df.ix[i]['lower_band']) and (invested_long == False) and \
                 (df_shift.ix[i]['Price'] >= df_shift.ix[i]['lower_band']):
-            out_orders.append([df.index[i], 'IBM', 'BUY', 'Long'])
-            invested = True
-        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested == True) and \
+            out_orders.append([df.index[i], 'IBM', 'BUY', 'Long', 'BUY'])
+            invested_long = True
+        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested_long == True) and \
                 (df_shift.ix[i]['Price'] >= df_shift.ix[i]['SMA']):
-            out_orders.append([df.index[i], 'IBM', 'SELL', 'Long'])
-            invested = False
+            out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
+            invested_long = False
         else:
             pass
 
     # Convert orders to data frame
     df_orders = pd.DataFrame(out_orders,
-                             columns=['Date', 'Symbol', 'BB_Strat', 'Type'])
+                             columns=['Date', 'Symbol', 'BB_Strat', 'Type', 'Order'])
     return df_orders
 
 def test_run():
@@ -135,22 +136,23 @@ def test_run():
     fig = ax.get_figure()
     fig.savefig('output/bollinger_band_strategy.png')
 
+    #prep orders for market simulator
     orders['Shares'] = 100
+    orders.set_index('Date', inplace=True)
+    orders[['Symbol', 'Order', 'Shares']].to_csv('output/baseline_orders.csv')
 
-    #prep strategy for market simulator
-    if i in range(0, len(orders)):
-        if (orders['BB_Strat'] == 'BUY') and (orders['Type'] == 'Long'):
-            orders['Order'] = 'BUY'
-        elif (orders['BB_Strat'] == 'SELL') and (orders['Type'] == 'Long'):
-            orders['Order'] = 'SELL'
-        elif (orders['BB_Strat'] == 'BUY') and (orders['Type'] == 'Short'):
-            orders['Order'] = 'SELL'
-        elif (orders['BB_Strat'] == 'SELL') and (orders['Type'] == 'Short'):
-            orders['Order'] = 'BUY'
-        else:
-            pass
+    #send order to marketsims
+    of = "./output/baseline_orders.csv"
+    sv = 10000
+    rfr = 0.0
+    sf = 252.0
 
-    orders.to_csv('output/baseline_orders.csv', index=orders['Date'])
+    # Process orders
+    portvals = compute_portvals(orders_file=of, start_val=sv)
+    if isinstance(portvals, pd.DataFrame):
+        portvals = portvals[portvals.columns[0]]# just get the first column
+    else:
+        "warning, code did not return a DataFrame"
 
 
 if __name__ == "__main__":
