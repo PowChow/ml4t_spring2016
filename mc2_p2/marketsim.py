@@ -143,8 +143,10 @@ def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True):
 
     if gen_plot:
         #Plots comparison between IBM and $SPY
-        df_temp = pd.concat([portval_norm, prices_SPY_norm], keys=['Portfolio', 'SPY'], axis=1)
-        ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=True)
+        df_temp = pd.concat([portval_norm, prices_SPY_norm], keys=['Portfolio', '$SPY'], axis=1)
+        df_temp.dropna(inplace=True)
+        ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=False)
+        ax.legend(loc='upper left', labels=['Portfolio', '$SPY'])
         fig = ax.get_figure()
         fig.savefig('output/comparison_chart.png')
 
