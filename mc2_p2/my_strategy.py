@@ -1,4 +1,4 @@
-"""MC2-P2: Bollinger Bands Strategy Implementation """
+"""MC2-P2: My Strategy """
 
 import pandas as pd
 import os
@@ -87,62 +87,78 @@ def get_bollinger_strategy(df):
 
 def test_run():
     # Read data
-    dates = pd.date_range('2007-12-31', '2009-12-31')
+    dates = pd.date_range('2007-12-31', '2009-12-31') #Add in sample and out of sample dates
     symbols = list(['IBM'])
     df = get_data(symbols, dates, addSPY=True)
 
-    # Compute Bollinger Bands
+    #COMPUTE MY STRATEGY - RELATIVE STRENGTH INDEX (RSI) & RELATIVE STRENGTH (RS)
+    # 1. Compute change
+    df['change'] = df['IBM'].shift(1) - df['IBM']
+
+    # 2. Compute Gain
+    df['gain'] = df['change'].apply(lambda x: x if x > 0 else np.nan)
+    # 3. Compute Loss
+    df['loss'] = df['change'].apply(lambda x: x if x < 0 else np.nan)
+
+    # 4. Compute rolling mean Average Gain and Loss
+    df['rm_gain'] = get_rolling_mean(df['IBM'], window=20) #lower window to increase the sensitivity
+
+    # 5. Compute Average Loss
+    # 6. Compute RS
+    # 7. Compute RSI
+    # 8. Hold in memory (marketsim) highest and lowest values
+
     # 1. Compute rolling mean
-    rm_IBM = get_rolling_mean(df['IBM'], window=20)
-
-    # 2. Compute rolling standard deviation
-    rstd_IBM = get_rolling_std(df['IBM'], window=20)
-
-    # 3. Compute upper and lower bands
-    upper_band, lower_band = get_bollinger_bands(rm_IBM, rstd_IBM)
-
-    # 4. Add signals for buy and sell
-    combo_df = pd.concat([df['IBM'], rm_IBM, upper_band, lower_band], axis=1)
-    combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
-    combo_df.rename(index={0:'Date'}, inplace=True)
-    combo_df.to_csv('IBM.csv')
-
-    orders = get_bollinger_strategy(combo_df)
-
-    # Plot raw SPY values, rolling mean and Bollinger Bands
-    ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
-    rm_IBM.plot(label='SMA', color='yellow', ax=ax)
-    combo_df[['upper_band', 'lower_band']].plot(label='Bollinger Bands', color='cyan', ax=ax)
-
-    # Plot vertical lines for shorts
-    for i in range(0, len(orders)):
-        if (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'BUY'):
-            ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'SELL'):
-            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'BUY'):
-            ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
-        elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'SELL'):
-            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
-        else:
-            pass
-
-    # Add axis labels and legend
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Price")
-    ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
-    #plt.show()
-    fig = ax.get_figure()
-    fig.savefig('output/bollinger_band_strategy.png')
-
-
-    #prep orders for market simulator
-    orders['Shares'] = 100
-    orders.set_index('Date', inplace=True)
-    orders[['Symbol', 'Order', 'Shares']].to_csv('output/orders.csv')
-
-    #send order to marketsims
-    ms.sims_output(sv=10000, of="./output/orders.csv" )
+    # rm_IBM = get_rolling_mean(df['IBM'], window=20) #lower window to increase the sensitivity
+    #
+    # # 2. Compute rolling standard deviation
+    # rstd_IBM = get_rolling_std(df['IBM'], window=20)
+    #
+    # # 3. Compute upper and lower bands
+    # upper_band, lower_band = get_bollinger_bands(rm_IBM, rstd_IBM)
+    #
+    # # 4. Add signals for buy and sell
+    # combo_df = pd.concat([df['IBM'], rm_IBM, upper_band, lower_band], axis=1)
+    # combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
+    # combo_df.rename(index={0:'Date'}, inplace=True)
+    # combo_df.to_csv('IBM.csv')
+    #
+    # orders = get_bollinger_strategy(combo_df)
+    #
+    # # Plot raw SPY values, rolling mean and Bollinger Bands
+    # ax = df['IBM'].plot(title="Bollinger Bands", label='IBM')
+    # rm_IBM.plot(label='SMA', color='yellow', ax=ax)
+    # combo_df[['upper_band', 'lower_band']].plot(label='Bollinger Bands', color='cyan', ax=ax)
+    #
+    # # Plot vertical lines for shorts
+    # for i in range(0, len(orders)):
+    #     if (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'BUY'):
+    #         ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
+    #     elif (orders.ix[i]['Type'] == 'Short') and (orders.ix[i]['BB_Strat'] == 'SELL'):
+    #         ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+    #     elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'BUY'):
+    #         ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
+    #     elif (orders.ix[i]['Type'] == 'Long') and (orders.ix[i]['BB_Strat'] == 'SELL'):
+    #         ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+    #     else:
+    #         pass
+    #
+    # # Add axis labels and legend
+    # ax.set_xlabel("Date")
+    # ax.set_ylabel("Price")
+    # ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
+    # #plt.show()
+    # fig = ax.get_figure()
+    # fig.savefig('output/bollinger_band_strategy.png')
+    #
+    #
+    # #prep orders for market simulator
+    # orders['Shares'] = 100
+    # orders.set_index('Date', inplace=True)
+    # orders[['Symbol', 'Order', 'Shares']].to_csv('output/orders.csv')
+    #
+    # #send order to marketsims
+    # ms.sims_output(sv=10000, of="./output/orders.csv" )
 
 
 if __name__ == "__main__":
