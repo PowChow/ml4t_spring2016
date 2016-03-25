@@ -92,7 +92,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     return portval2
 
-def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True):
+def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True, strat_name="BB"):
 
     rfr = 0.0
     sf = 252.0
@@ -148,7 +148,7 @@ def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True):
         ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=False)
         ax.legend(loc='upper left', labels=['Portfolio', '$SPY'])
         fig = ax.get_figure()
-        fig.savefig('output/comparison_chart.png')
+        fig.savefig('output/%s_comparison_chart.png' % strat_name)
 
 
 def test_code():

@@ -133,16 +133,16 @@ def test_run():
     ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
     #plt.show()
     fig = ax.get_figure()
-    fig.savefig('output/bollinger_band_strategy.png')
+    fig.savefig('output/bb_strategy.png')
 
 
     #prep orders for market simulator
     orders['Shares'] = 100
     orders.set_index('Date', inplace=True)
-    orders[['Symbol', 'Order', 'Shares']].to_csv('output/orders.csv')
+    orders[['Symbol', 'Order', 'Shares']].to_csv('output/bb_orders.csv')
 
     #send order to marketsims
-    ms.sims_output(sv=10000, of="./output/orders.csv" )
+    ms.sims_output(sv=10000, of="./output/bb_orders.csv", strat_name='BB' )
 
 
 if __name__ == "__main__":
