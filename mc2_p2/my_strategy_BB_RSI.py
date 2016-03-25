@@ -56,8 +56,8 @@ def calc_rsi(df):
 
     #COMPUTE MY STRATEGY - RELATIVE STRENGTH INDEX (RSI) & RELATIVE STRENGTH (RS)
     # 1. Compute change
-    df_rsi['change'] = df_rsi['IBM'].shift(1) - df_rsi['IBM']
-    df_rsi['change_prop'] = df_rsi['IBM'].shift(1) /df_rsi['IBM']
+    df_rsi['change'] = df_rsi['Price'].shift(1) - df_rsi['Price']
+    df_rsi['change_prop'] = df_rsi['Price'].shift(1) /df_rsi['Price']
 
     # 2. Compute Gain
     df_rsi['gain'] = df_rsi['change'].apply(lambda x: abs(x) if x > 0 else 0)
@@ -73,18 +73,20 @@ def calc_rsi(df):
     df_rsi['rs'] = df_rsi['rm_gain']/df_rsi['rm_loss']
 
     # 6. Compute RSI
-    df_rsi['rsi'] = df_rsi['rs'].apply(lambda x: 100 if x == 0.0 else 100-(100/(
+    df_rsi['rsi'] = df_rsi['rs'].apply(lambda x: 100 if x == 0.0 else 100-(100/(x+1)))
 
     return df_rsi
 
 
-def get_bollinger_strategy(df):
+def get_BB_RSI_strategy(df):
     """Implementation strategy based on Bollinger Bands"""
     """Returns data frame of orders"""
 
     out_orders = []
     invested_short = False #indicator for deciding on exit or entry
     invested_long = False
+    invested_rsi_short = False
+    invested_rsi_long = False
 
     df_shift = df.shift(1)
 
@@ -109,6 +111,25 @@ def get_bollinger_strategy(df):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
         elif (i == len(df) - 1) and (invested_short == True):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
+
+        # added rsi indicator
+        elif (df.ix[i]['rsi'] < 30) and (invested_rsi_short == False) \
+            and (invested_short == False and invested_long == False):
+             out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
+             invested_rsi_long = True
+        elif (df.ix[i]['rsi'] > 35) and (invested_rsi_short == True) \
+            and (invested_short == False and invested_long == False):
+            out_orders.append([df.index[i], 'IBM', 'SELL', 'Short', 'BUY'])
+            invested_rsi_long = False
+        elif (df.ix[i]['rsi'] > 70) and (invested_rsi_long == False) \
+            and (invested_short == False and invested_long == False):
+             out_orders.append([df.index[i],'IBM', 'BUY', 'Long', 'BUY'])
+             invested_rsi_long = True
+        elif (df.ix[i]['rsi'] < 65) and (invested_rsi_long == True) \
+            and (df.ix[i]['change_prop'] > 1.0) \
+            and (invested_short == False and invested_long == False):
+            out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
+            invested_rsi_long = False
         else:
             pass
 
@@ -140,8 +161,8 @@ def test_run():
     combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
     combo_df.rename(index={0:'Date'}, inplace=True)
     #combo_df.to_csv('IBM_BB.csv')
-
-    combo_df_2 = get_rsi(combo_df)
+    #print combo_df.head()
+    combo_df_2 = calc_rsi(combo_df)
     print combo_df_2.head()
 
     orders = get_BB_RSI_strategy(combo_df_2)
@@ -170,16 +191,16 @@ def test_run():
     ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
     #plt.show()
     fig = ax.get_figure()
-    fig.savefig('output/bb_strategy.png')
+    fig.savefig('output/bb_rsi_strategy.png')
 
 
     #prep orders for market simulator
     orders['Shares'] = 100
     orders.set_index('Date', inplace=True)
-    orders[['Symbol', 'Order', 'Shares']].to_csv('output/bb_orders.csv')
+    orders[['Symbol', 'Order', 'Shares']].to_csv('output/bb_rsi_orders.csv')
 
     #send order to marketsims
-    ms.sims_output(sv=10000, of="./output/bb_orders.csv", strat_name='BB' )
+    ms.sims_output(sv=10000, of="./output/bb_rsi_orders.csv", strat_name='BB_RSI' )
 
 
 if __name__ == "__main__":
