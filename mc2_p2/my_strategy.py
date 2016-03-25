@@ -92,10 +92,12 @@ def get_rsi_strategy(df):
     return df_orders
 
 def test_run():
-    # Read data
-    dates = pd.date_range('2007-12-31', '2009-12-31') #Add in sample and out of sample dates
+
+    in_dates = pd.date_range('2007-12-31', '2009-12-31') #Add in sample and out of sample dates
+    out_dates = pd.date_range('2009-12-31', '2011-12-31') #Add in sample and out of sample dates
+
     symbols = list(['IBM'])
-    df = get_data(symbols, dates, addSPY=True)
+    df = get_data(symbols, out_dates, addSPY=True)
     df_rsi = df.copy()
     df_rsi.drop(['SPY'], axis=1, inplace=True)
 
