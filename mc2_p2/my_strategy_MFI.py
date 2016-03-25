@@ -1,5 +1,4 @@
-"""MC2-P2: My Strategy RSI """
-
+"""MC2-P2: My Strategy MFI """
 import pandas as pd
 import os
 import numpy as np
@@ -12,16 +11,16 @@ def symbol_to_path(symbol, base_dir=os.path.join("..", "data")):
     """Return CSV file path given ticker symbol."""
     return os.path.join(base_dir, "{}.csv".format(str(symbol)))
 
-def get_data(symbols, dates, addSPY=True):
+def get_data_more(symbols, dates, addSPY=True):
     """Read stock data (adjusted close) for given symbols from CSV files."""
     df = pd.DataFrame(index=dates)
     if addSPY and 'SPY' not in symbols:  # add SPY for reference, if absent
-        symbols = ['SPY'] + symbols
+        symbols = ['$SPY'] + symbols
 
     for symbol in symbols:
         df_temp = pd.read_csv(symbol_to_path(symbol), index_col='Date',
-                parse_dates=True, usecols=['Date', 'Adj Close'], na_values=['nan'])
-        df_temp = df_temp.rename(columns={'Adj Close': symbol})
+                parse_dates=True, usecols=['Date', 'Adj Close', 'High', 'Low', 'Volume'], na_values=['nan'])
+        #df_temp = df_temp.rename(columns={'Adj Close': symbol})
         df = df.join(df_temp)
         if symbol == 'SPY':  # drop dates SPY did not trade
             df = df.dropna(subset=["SPY"])
@@ -73,13 +72,13 @@ def get_rsi_strategy(df):
         if (df.ix[i]['rsi'] < 30) and (invested_short == False):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
              invested_short = True
-        elif (df.ix[i]['rsi'] > 35) and (invested_short == True):
+        elif (df.ix[i]['rsi'] > 30) and (invested_short == True):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Short', 'BUY'])
             invested_short = False
         elif (df.ix[i]['rsi'] > 70) and (invested_long == False):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Long', 'BUY'])
              invested_long = True
-        elif (df.ix[i]['rsi'] < 65) and (invested_long == True) \
+        elif (df.ix[i]['rsi'] < 70) and (invested_long == True) \
             and (df.ix[i]['change_prop'] > 1.0):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
             invested_long = False
@@ -93,7 +92,7 @@ def get_rsi_strategy(df):
 
 def test_run():
     # Read data
-    dates = pd.date_range('2007-12-31', '2009-12-31') #Add in sample and out of sample dates
+    in_dates = pd.date_range('2007-12-31', '2009-12-31') #Add in sample and out of sample dates
     symbols = list(['IBM'])
     df = get_data(symbols, dates, addSPY=True)
     df_rsi = df.copy()
