@@ -113,21 +113,17 @@ def get_BB_RSI_strategy(df):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
 
         # added rsi indicator
-        elif (df.ix[i]['rsi'] < 30) and (invested_rsi_short == False) \
-            and (invested_short == False and invested_long == False):
+        elif (df.ix[i]['rsi'] < 30) and (invested_rsi_short == False):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
              invested_rsi_long = True
-        elif (df.ix[i]['rsi'] > 35) and (invested_rsi_short == True) \
-            and (invested_short == False and invested_long == False):
+        elif (df.ix[i]['rsi'] > 35) and (invested_rsi_short == True):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Short', 'BUY'])
             invested_rsi_long = False
-        elif (df.ix[i]['rsi'] > 70) and (invested_rsi_long == False) \
-            and (invested_short == False and invested_long == False):
+        elif (df.ix[i]['rsi'] > 70) and (invested_rsi_long == False):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Long', 'BUY'])
              invested_rsi_long = True
         elif (df.ix[i]['rsi'] < 65) and (invested_rsi_long == True) \
-            and (df.ix[i]['change_prop'] > 1.0) \
-            and (invested_short == False and invested_long == False):
+            and (df.ix[i]['change_prop'] > 1.0):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
             invested_rsi_long = False
         else:

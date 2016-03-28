@@ -1,0 +1,37 @@
+APPL
+ACN
+ATVI
+AKAM
+ADS
+AMAT
+ADSK
+GOOGL
+AVGO
+DELL
+CSRA
+EMC
+EQIX
+FIS
+FISV
+INTC
+JNPR
+LLTC
+MSI
+NVDA
+QUORVO
+QCOM
+CRM
+STX
+SWKS
+SYMC
+TEL
+TDC
+TSS
+VZ
+WDC
+XRX
+XLNX
+
+#use technical analysis of a category of stock
+#create an index to trade upon, additional information / signals
+# for the actual trading strategy of BB

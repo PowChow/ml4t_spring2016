@@ -61,26 +61,26 @@ def get_bollinger_strategy(df):
     df_shift = df.shift(1)
 
     for i in range(0, len(df)):
-        if (df.ix[i]['Price'] <= df.ix[i]['upper_band']) and (invested_short == False) and \
+        if (df.ix[i]['Price'] < df.ix[i]['upper_band']) and (invested_short == False) and \
                 (df_shift.ix[i]['Price'] > df_shift.ix[i]['upper_band']):
             out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
             invested_short = True
-        elif (df.ix[i]['Price'] <= df.ix[i]['SMA']) and (invested_short == True) and \
-                (df_shift.ix[i]['Price'] > df.ix[i]['SMA']):
+        elif (df.ix[i]['Price'] < df.ix[i]['SMA']) and (invested_short == True) and \
+                (df_shift.ix[i]['Price'] > df_shift.ix[i]['SMA']):
             out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
             invested_short = False
-        elif (df.ix[i]['Price'] >= df.ix[i]['lower_band']) and (invested_long == False) and \
+        elif (df.ix[i]['Price'] > df.ix[i]['lower_band']) and (invested_long == False) and \
                 (df_shift.ix[i]['Price'] < df_shift.ix[i]['lower_band']):
             out_orders.append([df.index[i], 'IBM', 'BUY', 'Long', 'BUY'])
             invested_long = True
-        elif (df.ix[i]['Price'] >= df.ix[i]['SMA']) and (invested_long == True) and \
+        elif (df.ix[i]['Price'] > df.ix[i]['SMA']) and (invested_long == True) and \
                 (df_shift.ix[i]['Price'] < df_shift.ix[i]['SMA']):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
             invested_long = False
-        elif (i == len(df) - 1) and (invested_long == True):
-            out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
-        elif (i == len(df) - 1) and (invested_short == True):
-            out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
+        # elif (i == len(df) - 1) and (invested_long == True):
+        #     out_orders.append([df.index[i], 'IBM', 'SELL', 'Long', 'SELL'])
+        # elif (i == len(df) - 1) and (invested_short == True):
+        #     out_orders.append([df.index[i],'IBM', 'SELL', 'Short', 'BUY'])
         else:
             pass
 
@@ -94,7 +94,7 @@ def test_run():
     out_dates = pd.date_range('2009-12-31', '2011-12-31') #Add in sample and out of sample dates
 
     symbols = list(['IBM'])
-    df = get_data(symbols, out_dates, addSPY=True)
+    df = get_data(symbols, in_dates, addSPY=True)
 
     # Compute Bollinger Bands
     # 1. Compute rolling mean
