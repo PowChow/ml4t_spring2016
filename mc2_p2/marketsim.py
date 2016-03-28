@@ -105,7 +105,6 @@ def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True, strat_name
         "warning, code did not return a DataFrame"
 
     # Get portfolio stats
-    # Here we just fake the data. you should use your code from previous assignments.
     start_date = dt.datetime.strftime(portvals.index.min(), '%Y-%m-%d')
     end_date = dt.datetime.strftime(portvals.index.max(), '%Y-%m-%d')
 

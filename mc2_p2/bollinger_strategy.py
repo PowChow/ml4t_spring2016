@@ -111,7 +111,7 @@ def test_run():
     combo_df.columns = ['Price', 'SMA', 'upper_band', 'lower_band']
     combo_df.rename(index={0:'Date'}, inplace=True)
     combo_df.to_csv('IBM.csv')
-    print combo_df
+    #print combo_df
 
     orders = get_bollinger_strategy(combo_df)
 
