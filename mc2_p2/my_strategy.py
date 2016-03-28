@@ -66,18 +66,18 @@ def get_rsi_strategy(df):
 
         #hold lowest and highest values in dataset, double down on lowest
         if save_low_rsi > df.ix[i]['rsi']:
-            save_low_rsi =  df.ix[i]['rsi']
+            save_low_rsi = df.ix[i]['rsi']
         elif save_high_rsi < df.ix[i]['rsi']:
             save_high_rsi = df.ix[i]['rsi']
 
-        if (df.ix[i]['rsi'] < 31) and (invested_short == False) \
+        if (df.ix[i]['rsi'] < 33) and (invested_short == False) \
                 and (i != len(df)):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Short', 'SELL'])
              invested_short = True
-        elif (df.ix[i]['rsi'] > 36) and (invested_short == True):
+        elif (df.ix[i]['rsi'] > 35) and (invested_short == True):
             out_orders.append([df.index[i], 'IBM', 'SELL', 'Short', 'BUY'])
             invested_short = False
-        elif (df.ix[i]['rsi'] > 71) and (invested_long == False) \
+        elif (df.ix[i]['rsi'] > 72) and (invested_long == False) \
                 and (i != len(df)):
              out_orders.append([df.index[i],'IBM', 'BUY', 'Long', 'BUY'])
              invested_long = True
@@ -102,38 +102,24 @@ def test_run():
     out_dates = pd.date_range('2009-12-31', '2011-12-31') #Add in sample and out of sample dates
 
     symbols = list(['IBM'])
-    df = get_data(symbols, in_dates, addSPY=True)
+    df = get_data(symbols, out_dates, addSPY=True)
     df_rsi = df.copy()
     df_rsi.drop(['SPY'], axis=1, inplace=True)
 
-    #add tech symbols - APPL, GOOGL, CRM
-    tech_symbol = list(['GOOG'])
-    df_tech = get_data(tech_symbol, in_dates, addSPY=True)
-    df_tech_rsi = df_tech.copy()
-    df_tech_rsi.drop(['SPY'], axis=1, inplace=True)
 
     #COMPUTE MY STRATEGY - RELATIVE STRENGTH INDEX (RSI) & RELATIVE STRENGTH (RS)
     # 1. Compute change
     df_rsi['change'] = df_rsi['IBM'].shift(1) - df_rsi['IBM']
     df_rsi['change_prop'] = df_rsi['IBM'].shift(1) /df_rsi['IBM']
 
-    df_tech_rsi['change'] = df_tech_rsi['GOOG'].shift(1) - df_tech_rsi['GOOG']
-    df_tech_rsi['change_prop'] = df_tech_rsi['GOOG'].shift(1) /df_tech_rsi['GOOG']
-
     # 2. Compute Gain and Loss
     df_rsi['gain'] = df_rsi['change'].apply(lambda x: abs(x) if x > 0 else 0)
     df_rsi['loss'] = df_rsi['change'].apply(lambda x: abs(x) if x < 0 else 0)
 
-    df_tech_rsi['gain'] = df_tech_rsi['change'].apply(lambda x: abs(x) if x > 0 else 0)
-    df_tech_rsi['loss'] = df_tech_rsi['change'].apply(lambda x: abs(x) if x < 0 else 0)
-
     # 3. Compute rolling mean Average Gain and Loss
     # #lower window to increase the sensitivity
-    df_rsi['rm_gain'] = get_rolling_mean(df_rsi['gain'], window=14)
-    df_rsi['rm_loss'] = get_rolling_mean(df_rsi['loss'], window=14)
-
-    df_tech_rsi['rm_gain'] = get_rolling_mean(df_tech_rsi['gain'], window=14)
-    df_tech_rsi['rm_loss'] = get_rolling_mean(df_tech_rsi['loss'], window=14)
+    df_rsi['rm_gain'] = get_rolling_mean(df_rsi['gain'], window=20)
+    df_rsi['rm_loss'] = get_rolling_mean(df_rsi['loss'], window=20)
 
     # 5. Compute RS
     df_rsi['rs'] = df_rsi['rm_gain']/df_rsi['rm_loss']
@@ -144,7 +130,7 @@ def test_run():
     # 7 Add signals for buy and sell
     #df_rsi.columns =['Price', 'change', 'gain', 'loss', 'rm_gain', 'rm_loss', 'rs', 'rsi']
     orders = get_rsi_strategy(df_rsi)
-    orders.to_csv('./output/rsi_orders.csv')
+    orders.to_csv('./output/rsi_orders (in sample).csv')
 
     #df_rsi.reset_index(inplace=True)
 
@@ -173,7 +159,7 @@ def test_run():
     ax.legend(loc='lower left', labels=['IBM', 'RSI'])
     # # #plt.show()
     fig = ax.get_figure()
-    fig.savefig('output/rsi_strategy.png')
+    fig.savefig('output/rsi_strategy (in sample).png')
 
 
     # #prep orders for market simulator
