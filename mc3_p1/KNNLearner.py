@@ -5,6 +5,7 @@ gaTech
 """
 
 import numpy as np
+import math
 
 class KNNLearner(object):
 
@@ -46,7 +47,9 @@ class KNNLearner(object):
         for p in points:
             i = 0
             for x in arrayX:
-                t_dist[i] = np.linalg.norm(p - x)
+                t_dist[i] = np.linalg.norm(p - x) #numpy calculate distance
+                #d = pow((p - x), 2)
+                #t_dist[i] = math.sqrt(np.sum(d))
                 i= i+1
 
             sortdistindex = t_dist.argsort(axis=0)[:self.k]

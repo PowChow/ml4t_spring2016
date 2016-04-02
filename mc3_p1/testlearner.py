@@ -6,6 +6,8 @@ import numpy as np
 import math
 import LinRegLearner as lrl
 import KNNLearner as knn
+import matplotlib.pyplot as plt
+
 
 if __name__=="__main__":
     inf = open('Data/ripple.csv')
@@ -21,8 +23,8 @@ if __name__=="__main__":
     testX = data[train_rows:,0:-1]
     testY = data[train_rows:,-1]
 
-    print testX.shape
-    print testY.shape
+    #print testX.shape
+    #print testY.shape
 
     # create a linear regression learner and train it
     #learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
@@ -40,6 +42,7 @@ if __name__=="__main__":
     print "RMSE: ", rmse
     c = np.corrcoef(predY, y=trainY)
     print "corr: ", c[0,1]
+    #create graph in sample comparing predicted and actual
 
     # evaluate out of sample
     predY = learner.query(testX) # get the predictions
@@ -49,6 +52,14 @@ if __name__=="__main__":
     print "RMSE: ", rmse
     c = np.corrcoef(predY, y=testY)
     print "corr: ", c[0,1]
+
+    #create graph in sample comparing predicted and actual
+    ax = plt.scatter(predY, testY, alpha=0.5)
+    #ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
+    #plt.show()
+    fig = ax.get_figure()
+    fig.savefig('Output/knn_comparison.png')
+
 
     #learners = []
     #for i in range(0,10):
