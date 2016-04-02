@@ -5,9 +5,17 @@ Test a learner.  (c) 2015 Tucker Balch
 import numpy as np
 import math
 import LinRegLearner as lrl
+#import BagLearner as bl
 import KNNLearner as knn
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
+def plot_scatter(plotX, plotY, file_name='test'):
+    #create graph in sample comparing predicted and actual
+    ax = plt.scatter(plotX, plotY, alpha=0.5, c=['red', 'blue'])
+    #plt.show()
+    fig = ax.get_figure()
+    fig.savefig('Output/%s_knn_comparison.png' % file_name)
 
 if __name__=="__main__":
     inf = open('Data/ripple.csv')
@@ -34,34 +42,32 @@ if __name__=="__main__":
     learner = knn.KNNLearner(k=3, verbose=True) # create a LinRegLearner
     learner.addEvidence(trainX, trainY) # train it
 
+    #create bag learner and train it
+    # learner = bl.BagLearner(learner=knn.KNNLearner,
+    #                         kwargs={"k": 3}, bags=20, boost=False, verbose=False)
+    # learner.addEvidence(trainX, trainY)
+    # Y = learner.query(testX)
+
     # evaluate in sample
-    predY = learner.query(trainX) # get the predictions
-    rmse = math.sqrt(((trainY - predY) ** 2).sum()/trainY.shape[0])
+    predY_train = learner.query(trainX) # get the predictions
+    rmse = math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0])
     print
     print "In sample results"
     print "RMSE: ", rmse
-    c = np.corrcoef(predY, y=trainY)
+    c = np.corrcoef(predY_train, y=trainY)
     print "corr: ", c[0,1]
     #create graph in sample comparing predicted and actual
+    plot_scatter(predY_train, trainY, 'in_sample')
 
     # evaluate out of sample
-    predY = learner.query(testX) # get the predictions
-    rmse = math.sqrt(((testY - predY) ** 2).sum()/testY.shape[0])
+    predY_test = learner.query(testX) # get the predictions
+    rmse = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
     print
     print "Out of sample results"
     print "RMSE: ", rmse
-    c = np.corrcoef(predY, y=testY)
+    c = np.corrcoef(predY_test, y=testY)
     print "corr: ", c[0,1]
 
     #create graph in sample comparing predicted and actual
-    ax = plt.scatter(predY, testY, alpha=0.5)
-    #ax.legend(loc='lower left', labels=['IBM', 'SMA', 'Bollinger Bands'])
-    #plt.show()
-    fig = ax.get_figure()
-    fig.savefig('Output/knn_comparison.png')
+    plot_scatter(predY_test, testY, 'out_sample')
 
-
-    #learners = []
-    #for i in range(0,10):
-        #kwargs = {"k":i}
-        #learners.append(lrl.LinRegLearner(**kwargs))
