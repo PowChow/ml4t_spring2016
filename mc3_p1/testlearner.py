@@ -5,7 +5,7 @@ Test a learner.  (c) 2015 Tucker Balch
 import numpy as np
 import math
 import LinRegLearner as lrl
-#import KNNLearner as knn
+import KNNLearner as knn
 
 if __name__=="__main__":
     inf = open('Data/ripple.csv')
@@ -25,10 +25,12 @@ if __name__=="__main__":
     print testY.shape
 
     # create a linear regression learner and train it
-    learner = lrl.LinRegLearner(verbose = True) # create a LinRegLearner
-    learner.addEvidence(trainX, trainY) # train it
+    #learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
+    #learner.addEvidence(trainX, trainY) # train it
 
     #create a knn learner and train it
+    learner = knn.KNNLearner(k=3, verbose=True) # create a LinRegLearner
+    learner.addEvidence(trainX, trainY) # train it
 
     # evaluate in sample
     predY = learner.query(trainX) # get the predictions
