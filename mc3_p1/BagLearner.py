@@ -12,7 +12,7 @@ import KNNLearner as knn
 
 class BagLearner(object):
 
-    def __init__(self, learner=knn.KNNLearner, kwargs ={"k":3}, bags =20, boost=False, verbose=False):
+    def __init__(self, learner=knn.KNNLearner, kwargs={}, bags =20, boost=False, verbose=False):
         self.verbose = verbose
         self.boost = boost
 

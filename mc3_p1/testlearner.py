@@ -1,5 +1,7 @@
 """
 Test a learner.  (c) 2015 Tucker Balch
+Modified by Pauline Chow for GaTech ML4T
+
 """
 
 import numpy as np
@@ -44,8 +46,9 @@ if __name__=="__main__":
     # learner.addEvidence(trainX, trainY) # train it
 
     #create bag learner and train it
-    learner = bl.BagLearner(learner=knn.KNNLearner,
-                            kwargs={"k": 3}, bags=20, boost=False, verbose=False)
+    # learner = bl.BagLearner(learner=knn.KNNLearner,
+    #                         kwargs={"k": 5}, bags=20, boost=False, verbose=False)
+    learner = bl.BagLearner(learner=lrl.LinRegLearner, verbose=False)
     learner.addEvidence(trainX, trainY)
     Y = learner.query(testX)
 
