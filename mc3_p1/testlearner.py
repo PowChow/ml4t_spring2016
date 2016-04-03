@@ -41,14 +41,14 @@ if __name__=="__main__":
     #print testY.shape
 
     # create a linear regression learner and train it
-    # model = 'linreg'
-    # learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
-    # learner.addEvidence(trainX, trainY) # train it
+    model = 'linreg'
+    learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
+    learner.addEvidence(trainX, trainY) # train it
 
     #create a knn learner and train it
-    model = 'knn'
-    learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
-    learner.addEvidence(trainX, trainY) # train it
+    # model = 'knn'
+    # learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
+    # learner.addEvidence(trainX, trainY) # train it
 
     #create bag learner and train it
     # model = 'bag'
