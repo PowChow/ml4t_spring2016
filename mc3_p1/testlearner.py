@@ -22,8 +22,9 @@ def plot_scatter(plotX, plotY, file_name='test', model='knn'):
 
 if __name__=="__main__":
     #inf = open('Data/ripple.csv')
-    #inf = open('Data/best4linreg.csv')
-    inf = open('Data/best4knn.csv')
+    inf = open('Data/best4linreg.csv')
+    #inf = open('Data/best4knn.csv')
+    #inf = open('Data/simple.csv')
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
 
     # compute how much of the data is training and testing

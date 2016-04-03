@@ -6,15 +6,27 @@ import numpy as np
 import csv
 import math
 
-def CirclePoints(x=0., y=0., r=3, n=100):
-    return [(math.cos(2*math.pi/n*x)*r, math.sin(2*math.pi/n*x)*r) for x in xrange(0,n)]
+def CirclePoints(c=np.array([2.0, 5.0]), r=3, n=100):
+    ps = np.array([( c[0] + math.cos(2*math.pi/n*x)*r, c[1]+math.sin(2*math.pi/n*x)*r) for x in xrange(0,n)])
+    # points = np.ones(shape=(ps.shape[0], ps.shape[1]))
+    #
+    # for i in xrange(0, points.shape[0]):
+    #     points[i,:] = ps[i] + c[:]
+    # return points
+    return ps
 
 def main():
+    np.random.seed(125)
     k = 3
     X = []
+
     for i in xrange(k):
         radius = np.random.randint(low=3, high=10, size=1)
-        cp = CirclePoints(x=0., y=0., r=radius, n=1000/k)
+        x1 = np.random.random_integers(0, 10)
+        y1 = np.random.random_integers(-10, 10)
+        center = np.array([x1, y1])
+        print center
+        cp = CirclePoints(c=center, r=radius, n=1000/k)
         X.append(np.reshape(cp, newshape=(len(cp),2)))
 
 
