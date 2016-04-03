@@ -6,6 +6,7 @@ gaTech
 
 import numpy as np
 import math
+from scipy.spatial import distance
 
 class KNNLearner(object):
 
@@ -39,18 +40,13 @@ class KNNLearner(object):
 
         #create zero array with size of points for Y predicted values
         predY = []
-        t_dist = []
 
         # for loop to calculate Euclidean distance between query point and all
         for p in points:
-            for x in arrayX:
-                t_dist.append(np.linalg.norm(p - x)) #numpy calculate distance
+            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,2)), metric='euclidean')
 
-            t_dist_array = np.array(t_dist)
-            sortdistindex = t_dist_array.argsort(axis=0)[:self.k][::-1]
+            sortdistindex = d.argsort(axis=0)[:self.k][::-1]
             predY.append(np.average(arrayY[sortdistindex]))
-
-            t_dist = []
 
 
         # return array of predicted Y

@@ -20,28 +20,25 @@ class BagLearner(object):
         self.kwargs = kwargs
         self.bags = 20
 
-        self.X_bags = []
-        self.Y_bags = []
-
     def addEvidence(self,dataX,dataY):
         """
         @summary: Add training data to learner, append to existing
         @param dataX: X values of data to add
         @param dataY: the Y training values
         """
-        self.X = dataX
-        self.Y = dataY
+        self.X = np.array(dataX)
+        self.Y = np.array(dataY)
+        self.X_bags = []
+        self.Y_bags = []
 
-        tmpX = np.array(self.X)
-        tmpY = np.array(self.Y)
 
-        X_index = np.arange(start=0, stop=tmpX.shape[0])
+        X_index = np.arange(start=0, stop=self.X.shape[0])
         # if bagging selected then add distribution of points here
         for b in range(self.bags):
             #create bags here with data with replacement
             tmp_index = np.random.choice(X_index, size=X_index.shape[0], replace=True)
-            self.X_bags.append(tmpX[tmp_index]) #adds new bag of values to list
-            self.Y_bags.append(tmpY[tmp_index])
+            self.X_bags.append(self.X[tmp_index])
+            self.Y_bags.append(self.Y[tmp_index])
 
     def query(self,points):
         """
@@ -54,17 +51,14 @@ class BagLearner(object):
 
         kwargs = self.kwargs
         learners_list = []
-        for i in range(0,self.bags):
-            learners_list.append(self.learner(**kwargs))
-
         pred = []
-        for learn in learners_list:
-            learn.addEvidence(self.X_bags[i], self.Y_bags[i])
-            pred.append(learn.query(points)) #outputs estimate for points related to a set of bags
+        for i in range(0,self.bags):
+            #learners_list.append(self.learner(**kwargs))
+            l = self.learner(**kwargs)
+            l.addEvidence(self.X_bags[i], self.Y_bags[i])
+            pred.append(l.query(points)) #outputs estimate for points related to a set of bags
 
-        pred_array = np.array(pred)
-
-        predY_bags = np.average(pred_array, axis=0)
+        predY_bags = np.average(np.array(pred), axis=0)
         return predY_bags
 
 if __name__== "__main__":

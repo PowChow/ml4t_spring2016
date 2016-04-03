@@ -57,7 +57,6 @@ if __name__=="__main__":
     print "RMSE: ", rmse
     c = np.corrcoef(predY_train, y=trainY)
     print "corr: ", c[0,1]
-    print predY_train[:3], trainY[:3]
     #create graph in sample comparing predicted and actual
     plot_scatter(predY_train, trainY, 'in_sample')
 

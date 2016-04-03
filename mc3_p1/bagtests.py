@@ -27,7 +27,7 @@ def t_generator(k, nbags):
         sy = sbag.fit(self.xtrain, self.ytrain).predict(self.xtest)
         y = learner.query(self.xtest)
         rmse = np.linalg.norm(sy - y) / np.sqrt(len(sy))
-        self.assertLess(rmse, .15)
+        self.assertLess(rmse, .22)
     return t
 
 
