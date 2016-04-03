@@ -4,11 +4,12 @@ Test a learner.  (c) 2015 Tucker Balch
 
 import numpy as np
 import math
+import time
+
 import LinRegLearner as lrl
-#import BagLearner as bl
+import BagLearner as bl
 import KNNLearner as knn
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 
 def plot_scatter(plotX, plotY, file_name='test'):
     #create graph in sample comparing predicted and actual

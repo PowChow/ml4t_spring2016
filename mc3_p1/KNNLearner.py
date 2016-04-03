@@ -56,10 +56,7 @@ class KNNLearner(object):
 
             t_dist = np.zeros(shape=(arrayX.shape[0],))
 
-        # if boosting add query here
-
-        # return array of predicted Ys
-        #print predY
+        # return array of predicted Y
         return predY
 
 if __name__== "__main__":

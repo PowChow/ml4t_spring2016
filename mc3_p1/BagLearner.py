@@ -6,20 +6,24 @@ gaTech
 
 import numpy as np
 import math
+import LinRegLearner as lrl
+import BagLearner as bl
+import KNNLearner as knn
 
 class BagLearner(object):
 
-    def __init__(self, learners = knn.Learner, kwargs ={"k":3}, bags =20, boost=False, verbose=False):
+    def __init__(self, learner=knn.KNNLearner, kwargs ={"k":3}, bags =20, boost=False, verbose=False):
         self.verbose = verbose
         self.boost = boost
 
-        self.learners = learners
+        self.learner = learner
         self.kwargs = kwargs
         self.bags = 20
 
         self.X = []
         self.Y = []
         self.X_bags = []
+        self.Y_bags = []
 
     def addEvidence(self,dataX,dataY):
         """
@@ -33,14 +37,13 @@ class BagLearner(object):
         tmpX = np.array(self.X)
         tmpY = np.array(self.Y)
 
-        X_index = np.arange(start=0, stop=self.tmpX.shape[0])
+        X_index = np.arange(start=0, stop=tmpX.shape[0])
         # if bagging selected then add distribution of points here
         for b in range(self.bags):
             #create bags here with data with replacement
             tmp_index = np.random.choice(X_index, size=X_index.shape[0], replace=True)
             self.X_bags.append(tmpX[tmp_index]) #adds new bag of values to list
             self.Y_bags.append(tmpY[tmp_index])
-
 
     def query(self,points):
         """
@@ -50,19 +53,22 @@ class BagLearner(object):
         """
         arrayX = np.array(self.X)
         arrayY = np.array(self.Y)
-        predY_bags = []
 
-        kwags = self.kwargs
+        kwargs = self.kwargs
+        learners_list = []
+        for i in range(0,self.bags):
+            learners_list.append(self.learner(**kwargs))
 
-        for learner in self.learners:
-            predictions = 0
+        pred = []
+        for learn in learners_list:
+            learn.addEvidence(self.X_bags[i], self.Y_bags[i])
+            pred.append(learn.query(points)) #outputs estimate for points related to a set of bags
 
-            for i in range(0, self.bags):
-                l = learner(***kwargs)
-                l.addEvidence(self.X_bags[i], self.Y_bags[i])
-                predictions += l.query(points)
-            predY_bags.apppend(predictions / self.bags)
+        pred_array = np.array(pred)
 
+        predY_bags = np.average(pred_array, axis=0)
+        #print pred_array.shape
+        #print predY_bags.shape
         return predY_bags
 
 if __name__== "__main__":
