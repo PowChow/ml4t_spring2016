@@ -16,7 +16,7 @@ class LinRegLearner(object):
         @param dataX: X values of data to add
         @param dataY: the Y training values
         """
-        #bagging here
+        # bagging here
         # slap on 1s column so linear regression finds a constant term
         newdataX = np.ones([dataX.shape[0],dataX.shape[1]+1])
         newdataX[:,0:dataX.shape[1]]=dataX
