@@ -12,8 +12,7 @@ class KNNLearner(object):
     def __init__(self, k=3, verbose=False):
         self.verbose = verbose
         self.k = k
-        self.X = []
-        self.Y = []
+
 
     def addEvidence(self,dataX,dataY):
         """
@@ -21,8 +20,8 @@ class KNNLearner(object):
         @param dataX: X values of data to add
         @param dataY: the Y training values
         """
-        self.X.extend(dataX)
-        self.Y.extend(dataY)
+        self.X = np.array(dataX)
+        self.Y = np.array(dataY)
 
         # if bagging selected then add distribution of points here
 
@@ -35,28 +34,29 @@ class KNNLearner(object):
         @param points: should be a numpy array with each row corresponding to a specific query.
         @returns the estimated values according to the saved model.
         """
-        arrayX = np.array(self.X)
-        arrayY = np.array(self.Y)
+        arrayX = self.X
+        arrayY = self.Y
 
         #create zero array with size of points for Y predicted values
         predY = []
-        t_dist = np.zeros(shape=(arrayX.shape[0],))
+        t_dist = []
 
         # for loop to calculate Euclidean distance between query point and all
         for p in points:
-            i = 0
             for x in arrayX:
-                t_dist[i] = np.linalg.norm(p - x) #numpy calculate distance
-                #d = pow((p - x), 2)
-                #t_dist[i] = math.sqrt(np.sum(d))
-                i= i+1
+                t_dist.append(np.linalg.norm(p - x)) #numpy calculate distance
 
-            sortdistindex = t_dist.argsort(axis=0)[:self.k]
-            predY.append(np.average(t_dist[sortdistindex]))
+            t_dist_array = np.array(t_dist)
+            sortdistindex = t_dist_array.argsort(axis=0)[:self.k][::-1]
+            #print sortdistindex
+            predY.append(np.average(arrayY[sortdistindex]))
+            #predY.append(np.sum(arrayY[sortdistindex]) / self.k)
 
-            t_dist = np.zeros(shape=(arrayX.shape[0],))
+            t_dist = []
+
 
         # return array of predicted Y
+        # print len(predY), predY
         return predY
 
 if __name__== "__main__":
