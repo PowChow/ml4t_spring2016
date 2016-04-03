@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4414135c-d550-4cf6-9c92-756b873fde8a" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../mc3_p1/BagLearner.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../mc3_p1/BagLearner.py" afterPath="$PROJECT_DIR$/../mc3_p1/BagLearner.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../mc3_p1/KNNLearner.py" afterPath="$PROJECT_DIR$/../mc3_p1/KNNLearner.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../mc3_p1/LinRegLearner.py" afterPath="$PROJECT_DIR$/../mc3_p1/LinRegLearner.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../mc3_p1/testlearner.py" afterPath="$PROJECT_DIR$/../mc3_p1/testlearner.py" />
     </list>
     <ignored path="mc2_p2.iws" />
@@ -30,7 +30,7 @@
         <entry file="file://$PROJECT_DIR$/../mc3_p1/testlearner.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="30" />
+              <caret line="41" column="71" selection-start-line="41" selection-start-column="71" selection-end-line="41" selection-end-column="71" />
               <folding>
                 <element signature="e#48#66#0" expanded="true" />
               </folding>
@@ -42,7 +42,7 @@
         <entry file="file://$PROJECT_DIR$/../mc3_p1/KNNLearner.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
               <folding>
                 <element signature="e#129#147#0" expanded="true" />
               </folding>
@@ -53,21 +53,11 @@
       <file leaf-file-name="BagLearner.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../mc3_p1/BagLearner.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.47368422">
-              <caret line="29" column="28" selection-start-line="29" selection-start-column="28" selection-end-line="29" selection-end-column="28" />
+            <state vertical-scroll-proportion="0.31578946">
+              <caret line="39" column="45" selection-start-line="39" selection-start-column="36" selection-end-line="39" selection-end-column="45" />
               <folding>
                 <element signature="e#129#147#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LinRegLearner.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../mc3_p1/LinRegLearner.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -103,9 +93,9 @@
         <option value="$PROJECT_DIR$/marketsim.py" />
         <option value="$PROJECT_DIR$/my_strategy.py" />
         <option value="$PROJECT_DIR$/bollinger_strategy.py" />
-        <option value="$PROJECT_DIR$/../mc3_p1/testlearner.py" />
         <option value="$PROJECT_DIR$/../mc3_p1/LinRegLearner.py" />
         <option value="$PROJECT_DIR$/../mc3_p1/KNNLearner.py" />
+        <option value="$PROJECT_DIR$/../mc3_p1/testlearner.py" />
         <option value="$PROJECT_DIR$/../mc3_p1/BagLearner.py" />
       </list>
     </option>
@@ -160,24 +150,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="mc3_p1" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mc2_p2" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="ml4t_spring2016" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="mc3_p1" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Output" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -635,16 +607,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../mc3_p1/KNNLearner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
-          <folding>
-            <element signature="e#129#147#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../mc3_p1/Output/knn_comparison.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -653,17 +615,27 @@
     <entry file="file://$PROJECT_DIR$/../mc3_p1/testlearner.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="48" column="30" selection-start-line="48" selection-start-column="30" selection-end-line="48" selection-end-column="30" />
+          <caret line="41" column="71" selection-start-line="41" selection-start-column="71" selection-end-line="41" selection-end-column="71" />
           <folding>
             <element signature="e#48#66#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../mc3_p1/KNNLearner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
+          <folding>
+            <element signature="e#129#147#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/../mc3_p1/BagLearner.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.47368422">
-          <caret line="29" column="28" selection-start-line="29" selection-start-column="28" selection-end-line="29" selection-end-column="28" />
+        <state vertical-scroll-proportion="0.31578946">
+          <caret line="39" column="45" selection-start-line="39" selection-start-column="36" selection-end-line="39" selection-end-column="45" />
           <folding>
             <element signature="e#129#147#0" expanded="true" />
           </folding>

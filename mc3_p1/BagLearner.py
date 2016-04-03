@@ -31,6 +31,7 @@ class BagLearner(object):
         self.Y.extend(dataY)
 
         tmpX = np.array(self.X)
+        tmpY = np.array(self.Y)
 
         X_index = np.arange(start=0, stop=self.tmpX.shape[0])
         # if bagging selected then add distribution of points here
@@ -38,6 +39,7 @@ class BagLearner(object):
             #create bags here with data with replacement
             tmp_index = np.random.choice(X_index, size=X_index.shape[0], replace=True)
             self.X_bags.append(tmpX[tmp_index]) #adds new bag of values to list
+            self.Y_bags.append(tmpY[tmp_index])
 
 
     def query(self,points):
@@ -48,37 +50,20 @@ class BagLearner(object):
         """
         arrayX = np.array(self.X)
         arrayY = np.array(self.Y)
+        predY_bags = []
 
-        #pseudocode
-        for set in self.X_bags:
-            #get preductions
-            for learner in self.learners:
-                predictions += learner.query(points)
-            return average(predictions)
+        kwags = self.kwargs
 
+        for learner in self.learners:
+            predictions = 0
 
-        #create zero array with size of points for Y predicted values
-        predY = []
-        t_dist = np.zeros(shape=(arrayX.shape[0],))
+            for i in range(0, self.bags):
+                l = learner(***kwargs)
+                l.addEvidence(self.X_bags[i], self.Y_bags[i])
+                predictions += l.query(points)
+            predY_bags.apppend(predictions / self.bags)
 
-        # for loop to calculate Euclidean distance between query point and all
-        for p in points:
-            i = 0
-            for x in arrayX:
-                t_dist[i] = np.linalg.norm(p - x) #numpy calculate distance
-                #d = pow((p - x), 2)
-                #t_dist[i] = math.sqrt(np.sum(d))
-                i= i+1
-
-            sortdistindex = t_dist.argsort(axis=0)[:self.k]
-            predY.append(np.average(t_dist[sortdistindex]))
-
-            t_dist = np.zeros(shape=(arrayX.shape[0],))
-
-        # if boosting add query here
-
-        # return array of predicted Ys
-        #print predY
-        return predY
+        return predY_bags
 
 if __name__== "__main__":
+    main()

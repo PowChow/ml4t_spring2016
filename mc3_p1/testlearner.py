@@ -39,14 +39,14 @@ if __name__=="__main__":
     #learner.addEvidence(trainX, trainY) # train it
 
     #create a knn learner and train it
-    learner = knn.KNNLearner(k=3, verbose=True) # create a LinRegLearner
-    learner.addEvidence(trainX, trainY) # train it
+    # learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
+    # learner.addEvidence(trainX, trainY) # train it
 
     #create bag learner and train it
-    # learner = bl.BagLearner(learner=knn.KNNLearner,
-    #                         kwargs={"k": 3}, bags=20, boost=False, verbose=False)
-    # learner.addEvidence(trainX, trainY)
-    # Y = learner.query(testX)
+    learner = bl.BagLearner(learner=knn.KNNLearner,
+                            kwargs={"k": 3}, bags=20, boost=False, verbose=False)
+    learner.addEvidence(trainX, trainY)
+    Y = learner.query(testX)
 
     # evaluate in sample
     predY_train = learner.query(trainX) # get the predictions

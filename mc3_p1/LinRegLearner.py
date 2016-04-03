@@ -33,3 +33,4 @@ class LinRegLearner(object):
         return (self.model_coefs[:-1] * points).sum(axis = 1) + self.model_coefs[-1]
 
 if __name__== "__main__":
+    main()
