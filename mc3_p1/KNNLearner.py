@@ -48,9 +48,7 @@ class KNNLearner(object):
 
             t_dist_array = np.array(t_dist)
             sortdistindex = t_dist_array.argsort(axis=0)[:self.k][::-1]
-            #print sortdistindex
             predY.append(np.average(arrayY[sortdistindex]))
-            #predY.append(np.sum(arrayY[sortdistindex]) / self.k)
 
             t_dist = []
 

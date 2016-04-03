@@ -20,8 +20,6 @@ class BagLearner(object):
         self.kwargs = kwargs
         self.bags = 20
 
-        self.X = []
-        self.Y = []
         self.X_bags = []
         self.Y_bags = []
 
@@ -31,8 +29,8 @@ class BagLearner(object):
         @param dataX: X values of data to add
         @param dataY: the Y training values
         """
-        self.X.extend(dataX)
-        self.Y.extend(dataY)
+        self.X = dataX
+        self.Y = dataY
 
         tmpX = np.array(self.X)
         tmpY = np.array(self.Y)
@@ -67,8 +65,6 @@ class BagLearner(object):
         pred_array = np.array(pred)
 
         predY_bags = np.average(pred_array, axis=0)
-        #print pred_array.shape
-        #print predY_bags.shape
         return predY_bags
 
 if __name__== "__main__":
