@@ -20,11 +20,19 @@ def plot_scatter(plotX, plotY, file_name='test', model='knn'):
     fig = ax.get_figure()
     fig.savefig('Output/%s_%s_comparison.png' % (file_name, model) )
 
+def plot_data(plotX, plotY, name='ripple'):
+    ax = plt.scatter(plotX, plotY, alpha=0.5, c=['red', 'blue'])
+    #plt.show()
+    fig = ax.get_figure()
+    fig.savefig('Output/%s_data_scatter.png' % name )
+
 if __name__=="__main__":
     #inf = open('Data/ripple.csv')
     #inf = open('Data/best4linreg.csv')
-    inf = open('Data/best4knn.csv')
+    #inf = open('Data/best4knn.csv')
     #inf = open('Data/simple.csv')
+    inf = open('Data/ripple.csv')
+
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
 
     # compute how much of the data is training and testing
@@ -41,14 +49,14 @@ if __name__=="__main__":
     #print testY.shape
 
     # create a linear regression learner and train it
-    model = 'linreg'
-    learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
-    learner.addEvidence(trainX, trainY) # train it
+    # model = 'linreg'
+    # learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
+    # learner.addEvidence(trainX, trainY) # train it
 
     #create a knn learner and train it
-    # model = 'knn'
-    # learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
-    # learner.addEvidence(trainX, trainY) # train it
+    model = 'knn'
+    learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
+    learner.addEvidence(trainX, trainY) # train it
 
     #create bag learner and train it
     # model = 'bag'
@@ -58,10 +66,13 @@ if __name__=="__main__":
     # learner.addEvidence(trainX, trainY)
     # Y = learner.query(testX)
 
+    # create graph of dataset
+    plot_data(data[0], data[1], name='ripple')
+
     # evaluate in sample
     predY_train = learner.query(trainX) # get the predictions
     rmse = math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0])
-    print
+    print model
     print "In sample results"
     print "RMSE: ", rmse
     c = np.corrcoef(predY_train, y=trainY)
@@ -73,6 +84,7 @@ if __name__=="__main__":
     predY_test = learner.query(testX) # get the predictions
     rmse = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
     print
+    print model
     print "Out of sample results"
     print "RMSE: ", rmse
     c = np.corrcoef(predY_test, y=testY)
