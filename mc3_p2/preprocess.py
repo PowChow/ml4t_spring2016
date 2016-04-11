@@ -51,19 +51,21 @@ if __name__ == "__main__":
     # calculate 3 technical features -
     #data['bb'] =
     data['momentum'] = (data[sym]/data_shift[sym]) - 1.0
-    #data['risk'] =
-    data['Y'] = (data_shift[sym]/data[sym]) - 1.0
-
-    data['sma'] = get_rolling_mean(data[sym], window=5)
+    data['sma'] = \
+        (pd.rolling_mean(data[sym], window=5)/pd.rolling_mean(data_shift[sym], window=5)) - 1.0
 
     # 2. Compute rolling standard deviation
-    data['std'] = get_rolling_std(data[sym], window=5)
+    #data['rolling_std'] = get_rolling_std(data[sym], window=5)
+    data['rstd'] = \
+        (pd.rolling_std(data[sym], window=5)/pd.rolling_std(data_shift[sym], window=5)) - 1.0
 
     #get bollinger band averages
-    #data['bb'] = (data[sym] - data['sma'])/(2 * data['std'])
-    # 3. Compute upper and lower bands
-    upper_band, lower_band = get_bollinger_bands(data['sma'], data['std'])
+    data['bb'] = (data['IBM'] - data['sma'])/(2 * data['rstd'])
+    data['daily_ret'] = (data_shift[sym]/data[sym]) - 1.0
 
+
+    # 3. Compute upper and lower bands
+    upper_band, lower_band = get_bollinger_bands(data['sma'], data['rstd'])
 
     print data.head(10)
     print data.columns
