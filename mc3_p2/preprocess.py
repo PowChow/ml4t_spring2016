@@ -15,19 +15,21 @@ import KNNLearner as knn
 import matplotlib.pyplot as plt
 from util import get_data, plot_data
 
-def calc_momentum(df, days=5, sym=['IBM']):
-    '''
 
-    :param data: dataframe with stock prices for one symbol
-    :param days: numbers of days out to calculate
-    :return: dataframe with momentum calculated for every 5 days
-    '''
-    df_shift = df.shift(5)
-    N = days
+def get_rolling_mean(values, window):
+    """Return rolling mean of given values, using specified window size."""
+    return pd.rolling_mean(values, window=window)
 
-    return (df[sym]/df_shift[sym]) - 1
+def get_rolling_std(values, window):
+    """Return rolling standard deviation of given values, using specified window size."""
+    return pd.rolling_std(values, window=window)
 
-
+def get_bollinger_bands(rm, rstd):
+    """Return upper and lower Bollinger Bands."""
+    # Add 2sd above and below the rolling mean
+    upper_band = rm + (2*rstd)
+    lower_band = rm - (2*rstd)
+    return upper_band, lower_band
 
 if __name__ == "__main__":
     # Set constants
@@ -51,6 +53,17 @@ if __name__ == "__main__":
     data['momentum'] = (data[sym]/data_shift[sym]) - 1.0
     #data['risk'] =
     data['Y'] = (data_shift[sym]/data[sym]) - 1.0
+
+    data['sma'] = get_rolling_mean(data[sym], window=5)
+
+    # 2. Compute rolling standard deviation
+    data['std'] = get_rolling_std(data[sym], window=5)
+
+    #get bollinger band averages
+    #data['bb'] = (data[sym] - data['sma'])/(2 * data['std'])
+    # 3. Compute upper and lower bands
+    upper_band, lower_band = get_bollinger_bands(data['sma'], data['std'])
+
 
     print data.head(10)
     print data.columns
