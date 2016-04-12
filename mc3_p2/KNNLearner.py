@@ -43,7 +43,8 @@ class KNNLearner(object):
 
         # for loop to calculate Euclidean distance between query point and all
         for p in points:
-            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,2)), metric='euclidean')
+            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,4)), metric='euclidean')
+            #d = distance.cdist(arrayX, p, metric='euclidean')
 
             sortdistindex = d.argsort(axis=0)[:self.k][::-1]
             predY.append(np.average(arrayY[sortdistindex]))

@@ -31,11 +31,7 @@ def plot_data(plotX, plotY, name='ripple'):
     fig.savefig('Output/%s_data_scatter.png' % name )
 
 if __name__=="__main__":
-    #inf = open('Data/ripple.csv')
-    #inf = open('Data/best4linreg.csv')
-    #inf = open('Data/best4knn.csv')
-    #inf = open('Data/simple.csv')
-    inf = open('Data/ripple.csv')
+    inf = open('Data/ML4T-220_norms.csv')
 
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
 
@@ -49,8 +45,10 @@ if __name__=="__main__":
     testX = data[train_rows:,0:-1]
     testY = data[train_rows:,-1]
 
-    #print testX.shape
-    #print testY.shape
+    # print trainX.shape
+    # print trainY.shape
+    # print testX.shape
+    # print testY.shape
 
     # create a linear regression learner and train it
     # model = 'linreg'
@@ -58,20 +56,20 @@ if __name__=="__main__":
     # learner.addEvidence(trainX, trainY) # train it
 
     #create a knn learner and train it
-    model = 'knn'
-    learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
-    learner.addEvidence(trainX, trainY) # train it
+    # model = 'knn'
+    # learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
+    # learner.addEvidence(trainX, trainY) # train it
 
     #create bag learner and train it
-    # model = 'bag'
-    # learner = bl.BagLearner(learner=knn.KNNLearner,
-    #                         kwargs={"k": 5}, bags=20, boost=False, verbose=False)
-    # # learner = bl.BagLearner(learner=lrl.LinRegLearner, verbose=False)
-    # learner.addEvidence(trainX, trainY)
-    # Y = learner.query(testX)
+    model = 'knn bag'
+    learner = bl.BagLearner(learner=knn.KNNLearner,
+                            kwargs={"k": 5}, bags=20, boost=False, verbose=False)
+    # learner = bl.BagLearner(learner=lrl.LinRegLearner, verbose=False)
+    learner.addEvidence(trainX, trainY)
+    Y = learner.query(testX)
 
     # create graph of dataset
-    plot_data(data[0], data[1], name='ripple')
+    #plot_data(data[0], data[1], data[2], data[3], name='ML4T-220')
 
     # evaluate in sample
     predY_train = learner.query(trainX) # get the predictions

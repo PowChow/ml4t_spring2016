@@ -18,6 +18,13 @@ import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
+def get_bollinger_bands(rm, rstd):
+    """Return upper and lower Bollinger Bands."""
+    # Add 2sd above and below the rolling mean
+    upper_band = rm + (2*rstd)
+    lower_band = rm - (2*rstd)
+    return upper_band, lower_band
+
 
 if __name__ == "__main__":
     # Set constants
@@ -29,7 +36,8 @@ if __name__ == "__main__":
     sample_freq = 252    # default from previous assignments
 
     #Read Files
-    sym = ['IBM'] #use this one for graded plot
+    #sym = ['IBM']
+    sym = ['ML4T-220']
     dates = pd.date_range(start_date, end_date)
     data = get_data(sym, dates) #returns symbol with closing prices
     SPY = data['SPY']
@@ -39,11 +47,14 @@ if __name__ == "__main__":
     data['t+1'] = data[sym].shift(-1)  # shifts forwards, looks backwards 1 day
 
     # calculate 3 technical features -
-    data['momentum'] = (data[sym]/data['t-N']) - 1.0
-    data['sma'] = pd.rolling_mean(data[sym], window=5)
-    data['daily_ret'] = (data['t+N']/data[sym]) - 1.0
-    data['vol'] = pd.rolling_std(data['daily_ret'], window=5)
-    data['bb'] = (data[sym] - data['sma']) / (2 * data['vol'])
+    data['momentum'] = (data[sym]/data['t-N']) - 1.0            # measures the rise and fall of stock, strength and weakness of current price
+    data['sma'] = pd.rolling_mean(data[sym], window=5)          # define current direction with a lag - smooth price action and filter out noise
+    data['daily_ret'] = (data['t+N']/data[sym]) - 1.0           # change in price in 5 days
+    data['vol'] = pd.rolling_std(data['daily_ret'], window=5)   # amont of variability or dispersion around the average -- evaluate risk and signifigance of price movement
+    data['bb_upper_band'] = data['sma'] +(2*data['vol'])
+    data['bb_lower_band'] = data['sma'] - (2*data['vol'])
+    data['bb'] = (data[sym] - data['sma'])/((data['bb_upper_band']-data['bb_lower_band'])/2)  #range of volatility
+
 
     data['momentum_norm'] = (data['momentum'] - data['momentum'].min())/ (data['momentum'].max() - data['momentum'].min())
     data['sma_norm'] = (data['sma'] - data['sma'].min())/ (data['sma'].max() - data['sma'].min())
@@ -54,10 +65,14 @@ if __name__ == "__main__":
 
     print data.head(10)
     print data.describe()
+    #print data.dtypes
 
+    data[['momentum_norm', 'sma_norm', 'vol_norm', 'bb_norm', 'daily_ret']].to_csv('Data/%s_norms.csv' % sym[0],
+                                                                                   index=False,
+                                                                                   encoding='utf-8',
+                                                                                   heading=False
+                                                                                   )
     # only output every 5th technical value, rows[::5], not sure if it this is necessary anymore
-
-    # calcuate 5-day relative return, Y
 
     # output technical features to file with normalized tech values
 
@@ -68,8 +83,13 @@ if __name__ == "__main__":
 
 # output graphs
 
+# create function to create csv of orders for back testing
+# send to trading simulator / back testing
+# calcuate 5-day relative return, Y
+
+
 # send testing set to test predictions
 
 #output graph
 
-# send to trading simulator / back testing
+
