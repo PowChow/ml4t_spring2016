@@ -30,6 +30,20 @@ def plot_data(plotX, plotY, name='ripple'):
     fig = ax.get_figure()
     fig.savefig('Output/%s_data_scatter.png' % name )
 
+def plot_line_graphs(plotX, plotY_in, plotY_out, file_name='test'):
+    plt.plot(plotX, plotY_in)
+    plt.plot(plotX, plotY_out)
+    plt.title('ML4T-220 Data')
+    plt.legend(['in_sample', 'out_sample'])
+    plt.xlabel('K')
+    plt.ylabel('Error')
+
+    plt.show()
+    plt.figure()
+    plt.savefig('Output/%s_error.png' % (file_name) )
+    #fig = ax.get_figure()
+    #fig.savefig('Output/%s_%s_error.png' % (file_name) )
+
 if __name__=="__main__":
     inf = open('Data/ML4T-220_norms.csv')
 
@@ -50,48 +64,29 @@ if __name__=="__main__":
     # print testX.shape
     # print testY.shape
 
-    # create a linear regression learner and train it
-    # model = 'linreg'
-    # learner = lrl.LinRegLearner(verbose=True) # create a LinRegLearner
-    # learner.addEvidence(trainX, trainY) # train it
+    in_rmse_k = []
+    in_corr_k = []
+    out_rmse_k = []
+    out_corr_k = []
+    model = 'knn with bagging'
+    print 'shape of datatset:', data.shape
+    for i in range(2, 21):
+        learner = knn.KNNLearner(k=i, verbose=True) # create a knnLearner
+        # learner = bl.BagLearner(learner=knn.KNNLearner,
+        #                        kwargs={"k": 5}, bags=20, boost=False, verbose=False)
+        learner.addEvidence(trainX, trainY) # train it
 
-    #create a knn learner and train it
-    # model = 'knn'
-    # learner = knn.KNNLearner(k=3, verbose=True) # create a knnLearner
-    # learner.addEvidence(trainX, trainY) # train it
+        predY_train = learner.query(trainX) # get the predictions
 
-    #create bag learner and train it
-    model = 'knn bag'
-    learner = bl.BagLearner(learner=knn.KNNLearner,
-                            kwargs={"k": 5}, bags=20, boost=False, verbose=False)
-    # learner = bl.BagLearner(learner=lrl.LinRegLearner, verbose=False)
-    learner.addEvidence(trainX, trainY)
-    Y = learner.query(testX)
+        #get in sample stats
+        in_rmse_k.append(math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0]))
+        c_in = np.corrcoef(predY_train, y=trainY)
+        in_corr_k.append(c_in[0,1])
 
-    # create graph of dataset
-    #plot_data(data[0], data[1], data[2], data[3], name='ML4T-220')
+        # get out of sample stats
+        predY_test = learner.query(testX) # get the predictions
+        out_rmse_k.append(math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0]))
+        c_out = np.corrcoef(predY_test, y=testY)
+        out_corr_k.append(c_out[0,1])
 
-    # evaluate in sample
-    predY_train = learner.query(trainX) # get the predictions
-    rmse = math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0])
-    print model
-    print "In sample results"
-    print "RMSE: ", rmse
-    c = np.corrcoef(predY_train, y=trainY)
-    print "corr: ", c[0,1]
-    #create graph in sample comparing predicted and actual
-    plot_scatter(predY_train, trainY, 'in_sample', model)
-
-    # evaluate out of sample
-    predY_test = learner.query(testX) # get the predictions
-    rmse = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
-    print
-    print model
-    print "Out of sample results"
-    print "RMSE: ", rmse
-    c = np.corrcoef(predY_test, y=testY)
-    print "corr: ", c[0,1]
-
-    #create graph in sample comparing predicted and actual
-    plot_scatter(predY_test, testY, 'out_sample', model)
-
+    plot_line_graphs(np.arange(2,21), in_rmse_k, out_rmse_k, 'ML4T-220 knn_bags')
