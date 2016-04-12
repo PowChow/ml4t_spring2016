@@ -2,7 +2,10 @@
 
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
+
+import matplotlib as mpl
+mpl.use('TkAgg')                 #TODO update this in virutal env
+import matplotlib.pyplot as plt  #TODO update this in virutal env
 
 def symbol_to_path(symbol, base_dir=os.path.join("..", "data")):
     """Return CSV file path given ticker symbol."""

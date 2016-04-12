@@ -11,7 +11,11 @@ import time
 import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
+
+import matplotlib as mpl
+mpl.use('TkAgg')
 import matplotlib.pyplot as plt
+
 
 def plot_scatter(plotX, plotY, file_name='test', model='knn'):
     #create graph in sample comparing predicted and actual

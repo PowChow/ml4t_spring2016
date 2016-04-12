@@ -12,24 +12,12 @@ import pandas as pd
 import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
-import matplotlib.pyplot as plt
 from util import get_data, plot_data
 
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
 
-def get_rolling_mean(values, window):
-    """Return rolling mean of given values, using specified window size."""
-    return pd.rolling_mean(values, window=window)
-
-def get_rolling_std(values, window):
-    """Return rolling standard deviation of given values, using specified window size."""
-    return pd.rolling_std(values, window=window)
-
-def get_bollinger_bands(rm, rstd):
-    """Return upper and lower Bollinger Bands."""
-    # Add 2sd above and below the rolling mean
-    upper_band = rm + (2*rstd)
-    lower_band = rm - (2*rstd)
-    return upper_band, lower_band
 
 if __name__ == "__main__":
     # Set constants
@@ -46,35 +34,35 @@ if __name__ == "__main__":
     data = get_data(sym, dates) #returns symbol with closing prices
     SPY = data['SPY']
     data.drop(['SPY'], axis=1, inplace=True)
-    data_shift = data.shift(-5)
+    data['t-N'] = data[sym].shift(5)   # shifts days forward, look backwards 5 days
+    data['t+N'] = data[sym].shift(-5)  # shifts days backwards, look forwards 5 days
+    data['t+1'] = data[sym].shift(-1)  # shifts forwards, looks backwards 1 day
 
     # calculate 3 technical features -
-    #data['bb'] =
-    data['momentum'] = (data[sym]/data_shift[sym]) - 1.0
-    data['sma'] = \
-        (pd.rolling_mean(data[sym], window=5)/pd.rolling_mean(data_shift[sym], window=5)) - 1.0
+    data['momentum'] = (data[sym]/data['t-N']) - 1.0
+    data['sma'] = pd.rolling_mean(data[sym], window=5)
+    data['daily_ret'] = (data['t+N']/data[sym]) - 1.0
+    data['vol'] = pd.rolling_std(data['daily_ret'], window=5)
+    data['bb'] = (data[sym] - data['sma']) / (2 * data['vol'])
 
-    # 2. Compute rolling standard deviation
-    #data['rolling_std'] = get_rolling_std(data[sym], window=5)
-    data['rstd'] = \
-        (pd.rolling_std(data[sym], window=5)/pd.rolling_std(data_shift[sym], window=5)) - 1.0
+    data['momentum_norm'] = (data['momentum'] - data['momentum'].min())/ (data['momentum'].max() - data['momentum'].min())
+    data['sma_norm'] = (data['sma'] - data['sma'].min())/ (data['sma'].max() - data['sma'].min())
+    data['vol_norm'] = (data['vol'] - data['vol'].min())/ (data['vol'].max() - data['vol'].min())
+    data['bb_norm'] =  (data['bb'] - data['bb'].min())/ (data['bb'].max() - data['bb'].min())
 
-    #get bollinger band averages
-    data['bb'] = (data['IBM'] - data['sma'])/(2 * data['rstd'])
-    data['daily_ret'] = (data_shift[sym]/data[sym]) - 1.0
-
-
-    # 3. Compute upper and lower bands
-    upper_band, lower_band = get_bollinger_bands(data['sma'], data['rstd'])
+    data.dropna(how='any', inplace=True)
 
     print data.head(10)
-    print data.columns
-# normalize these tech values
-# only output every 5th technical value, rows[::5]
+    print data.describe()
 
-#out put technical features to file with normalized tech values
+    # only output every 5th technical value, rows[::5], not sure if it this is necessary anymore
 
-# calcuate 5-day relative return, Y
+    # calcuate 5-day relative return, Y
+
+    # output technical features to file with normalized tech values
+
+    #output first graphs
+
 
 # send training set with bagging to test predictions
 
