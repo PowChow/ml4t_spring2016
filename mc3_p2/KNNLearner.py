@@ -37,21 +37,25 @@ class KNNLearner(object):
         """
         arrayX = self.X
         arrayY = self.Y
+        attributes = self.X.shape[1]
 
         #create zero array with size of points for Y predicted values
         predY = []
 
         # for loop to calculate Euclidean distance between query point and all
         for p in points:
-            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,4)), metric='euclidean')
+            # print attributes
+            # print p
+
+            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,attributes)), metric='euclidean')
             #d = distance.cdist(arrayX, p, metric='euclidean')
 
             sortdistindex = d.argsort(axis=0)[:self.k][::-1]
             predY.append(np.average(arrayY[sortdistindex]))
 
 
-        # return array of predicted Y
-        # print len(predY), predY
+        # return array of predicted Y - 5 day change
+        # add order from this value
         return predY
 
 if __name__== "__main__":

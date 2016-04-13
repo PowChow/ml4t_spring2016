@@ -64,6 +64,8 @@ if __name__=="__main__":
     # print testX.shape
     # print testY.shape
 
+    #convert this into function
+
     in_rmse_k = []
     in_corr_k = []
     out_rmse_k = []
@@ -84,7 +86,7 @@ if __name__=="__main__":
         in_corr_k.append(c_in[0,1])
 
         # get out of sample stats
-        predY_test = learner.query(testX) # get the predictions
+        predY_test = learner.query(testX) # get the predictions, output orders from predY_test
         out_rmse_k.append(math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0]))
         c_out = np.corrcoef(predY_test, y=testY)
         out_corr_k.append(c_out[0,1])
