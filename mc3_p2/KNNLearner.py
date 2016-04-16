@@ -15,7 +15,6 @@ class KNNLearner(object):
         self.verbose = verbose
         self.k = k
 
-
     def addEvidence(self,dataX,dataY):
         """
         @summary: Add training data to learner, append to existing
@@ -25,16 +24,12 @@ class KNNLearner(object):
         self.X = np.array(dataX)
         self.Y = np.array(dataY)
 
-        # if bagging selected then add distribution of points here
-
-        #self.model_coefs, residuals, rank, s = np.linalg.lstsq(newdataX, dataY)
-
         
-    def query(self, points, symbol):
+    def query(self, points):
         """
-        @summary: Estimate a set of test points given the model we built.
-        @param points: should be a numpy array with each row corresponding to a specific query.
-        @returns the estimated values according to the saved model.
+        @summary: Estimate a set of test points given the model we built
+        @param points: should be a numpy array with each row corresponding to a specific query
+        @returns average Y according to the saved model
         """
         arrayX = self.X
         arrayY = self.Y
@@ -43,34 +38,15 @@ class KNNLearner(object):
         #create zero array with size of points for Y predicted values
         predY = []
 
-        #writes orders for KNN learner
-        with open('/Orders/%s_knn_orders.csv' % symbol, 'w+') as csvfile:
-            writer = csv.writer(csvfile, delimiter=',')
+        # for loop to calculate Euclidean distance between query point and all
+        print len(points)
+        for p in points:
+            d = distance.cdist(arrayX, np.reshape(p, newshape=(1,attributes)), metric='euclidean')
+            #d = distance.cdist(arrayX, p, metric='euclidean')
 
-            # for loop to calculate Euclidean distance between query point and all
-            for p in points:
-                # print attributes
-                # print p
-
-                d = distance.cdist(arrayX, np.reshape(p, newshape=(1,attributes)), metric='euclidean')
-                #d = distance.cdist(arrayX, p, metric='euclidean')
-
-                sortdistindex = d.argsort(axis=0)[:self.k][::-1]
-                pred_point = np.average(arrayY[sortdistindex])
-                predY.append(pred_point)
-
-                # Orders Output -- trading policies or strategies
-                if pred_point >= .01:
-                    # Date, Symbol, Order, Shares
-                    trade_date = #TODO 5 days prior to current date
-                    writer.writerow([trade_date, symbol, 'BUY', 100])
-                    writer.writerow([trade_date+5, symbol, 'SELL', 100])
-
-                elif: pred_point <= -.01:
-                    trade_date = #TODO 5 days prior to current date
-                    writer.writerow([trade_date, symbol, 'SELL', 100])
-                    writer.writerow([trade_date+5, symbol, 'BUY', 100])
-
+            sortdistindex = d.argsort(axis=0)[:self.k][::-1]
+            pred_point = np.average(arrayY[sortdistindex])
+            predY.append(pred_point)
 
         return predY
 

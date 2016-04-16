@@ -5,7 +5,7 @@ import numpy as np
 import datetime as dt
 from util import get_data, plot_data
 
-def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
+def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
 
     orders = pd.read_csv(orders_file, index_col='Date', parse_dates=True, na_values=['nan'] )
@@ -13,9 +13,11 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     start_date = dt.datetime.strftime(orders.index.min(), '%Y-%m-%d')
     end_date = dt.datetime.strftime(orders.index.max(), '%Y-%m-%d')
 
+
     #################################################################################################
     def execute_orders(in_orders, in_start_date, in_end_date):
         syms = list(in_orders.Symbol.unique())
+        print syms
 
         df_prices = get_data(syms, pd.date_range(in_start_date, in_end_date), addSPY=True)
         df_prices.drop(['SPY'], axis=1, inplace=True) #drop index prices after using it to get trading only days
@@ -74,6 +76,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
         df_portval = df_value.sum(axis=1)
         df_portval.dropna(how='any', inplace=True)
 
+        print df_portval.head()
         return df_leverage, df_portval
     #################################################################################################
 
@@ -92,7 +95,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     return portval2
 
-def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True, strat_name="BB"):
+def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, strat_name="BB"):
 
     rfr = 0.0
     sf = 252.0
@@ -155,7 +158,7 @@ def test_code():
     # note that during autograding his function will not be called.
     # Define input parameters
 
-    of = "./output/baseline_orders.csv"
+    of = "./Orders/orders.csv"
     sv = 1000000
     rfr = 0.0
     sf = 252.0
@@ -168,7 +171,6 @@ def test_code():
         "warning, code did not return a DataFrame"
     
     # Get portfolio stats
-    # Here we just fake the data. you should use your code from previous assignments.
     start_date = dt.datetime.strftime(portvals.index.min(), '%Y-%m-%d')
     end_date = dt.datetime.strftime(portvals.index.max(), '%Y-%m-%d')
 

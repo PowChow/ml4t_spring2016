@@ -8,6 +8,9 @@ import math
 import time
 import datetime as dt
 import pandas as pd
+import csv
+from pandas.tseries.offsets import BDay
+
 
 import matplotlib as mpl
 mpl.use('TkAgg')
@@ -17,6 +20,7 @@ import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
 from util import get_data, plot_data
+from marketsim import sims_output, compute_portvals
 
 
 def get_bollinger_bands(rm, rstd):
@@ -90,48 +94,108 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
 def SendtoModel(train_df, test_df, model='knn', symbol='IBM', k=3, bags=0, verbose=False):
 
     #calculate training and test sets
-    trainX = np.array(train_df.iloc[1:,0:-1])
-    trainY = np.array(train_df.iloc[1:,-1])
-    testX = np.array(test_df.iloc[1:,0:-1])
-    testY = np.array(test_df.iloc[1:,-1])
+    trainX = np.array(train_df.iloc[0:,0:-1])
+    trainY = np.array(train_df.iloc[0:,-1])
+    testX = np.array(test_df.iloc[0:,0:-1])
+    testY = np.array(test_df.iloc[0:,-1])
+
+    print 'shape testX', testX.shape
+    print 'shape testY', testY.shape
 
     if model == 'knn':
         learner = knn.KNNLearner(k=k, verbose=True) # create a knnLearner
         learner.addEvidence(trainX, trainY) # train it
 
+        # evaluate in sample
+        predY_train = learner.query(trainX) # get the predictions
+        rmse_train = math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0])
+
+        # evaluate out of sample
+        predY_test = learner.query(testX) # get the predictions
+        rmse_test = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
+
         if verbose:
-            # evaluate in sample
-            predY_train = learner.query(trainX, symbol=symbol) # get the predictions
-            rmse = math.sqrt(((trainY - predY_train) ** 2).sum()/trainY.shape[0])
+            #(a) in sample results
             print model, 'with arguments k=%s, bags=%s' % (k, bags)
             print "In sample results"
-            print "RMSE: ", rmse
+            print "RMSE: ", rmse_train
             c = np.corrcoef(predY_train, y=trainY)
             print "corr: ", c[0,1]
             #create graph in sample comparing predicted and actual
             #plot_scatter(predY_train, trainY, 'in_sample', model)
 
-            # evaluate out of sample
-            predY_test = learner.query(testX) # get the predictions
-            rmse = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
+            #(b) out of sample results
             print
             print model, 'with arguments k=%s, bags=%s' % (k, bags)
             print "Out of sample results"
-            print "RMSE: ", rmse
+            print "RMSE: ", rmse_test
             c = np.corrcoef(predY_test, y=testY)
             print "corr: ", c[0,1]
+            print 'length of predicted values: ', len(predY_test)
+            #print 'print predicted Y values:', predY_test
 
-            print predY_test
-            #print len(predY_test)
         else:
             pass
 
+        return predY_test
+
+def create_rolling_orders(predY_df, sym='IBM'):
+    """
+    :param: pred_returns set of predicted returns with dates
+    :param: sym generate orders, buys and sells, for symbol
+    returns: outputs list of orders, returns nothing
+    """
+    #TODO check overlap of orders with rolling method
+
+    with open('./Orders/%s_knn_orders_rolling.csv' % sym, 'w+') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+
+        for i, row in predY_df.iterrows():
+
+        # Orders Output -- trading policies or strategies
+            curr_date = dt.datetime.strftime(i, '%Y-%m-%d')
+            trade_date = i - pd.Timedelta(days=4)
+            trade_date = dt.datetime.strftime(trade_date, '%Y-%m-%d')
+
+            if row[0] >= .01:
+                # Date, Symbol, Order, Shares
+                writer.writerow([trade_date, sym[0], 'BUY', 100])
+                writer.writerow([curr_date, sym[0], 'SELL', 100])
+            elif row[0] <= -.01:
+                writer.writerow([trade_date, sym[0], 'SELL', 100])
+                writer.writerow([curr_date, sym[0], 'BUY', 100])
+            else:
+                pass
+
+def create_5day_orders(df, sym='IBM'):
+    """
+    :param: pred_returns set of predicted returns with dates
+    :param: sym generate orders, buys and sells, for symbol
+    returns: outputs list of orders, returns nothing
+    """
+    with open('./Orders/%s_knn_orders_5day.csv' % sym[0], 'w+') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(['Date','Symbol','Order','Shares' ])
+
+        for i in xrange(0, len(df), 5):
+            # Orders Output -- trading policies or strategies
+            curr_date = dt.datetime.strftime(df.index[i], '%Y-%m-%d')
+            trade_date = df.index[i] - pd.Timedelta(days=4)
+            trade_date = dt.datetime.strftime(trade_date, '%Y-%m-%d')
+
+            if df['predY_returns'][i] >= .01:
+                # Date, Symbol, Order, Shares
+                writer.writerow([trade_date, sym[0], 'BUY', 100])
+                writer.writerow([curr_date, sym[0], 'SELL', 100])
+            elif df['predY_returns'][i] <= -.01:
+                writer.writerow([trade_date, sym[0], 'SELL', 100])
+                writer.writerow([curr_date, sym[0], 'BUY', 100])
+            else:
+                pass
 
 if __name__ == "__main__":
     # 1) Set constants
-    start_val = 1000000  # default from previous assignments
-    risk_free_rate = 0.0 # default from previous assignments
-    sample_freq = 252    # default from previous assignments
+    start_val = 1000000
     in_sample_dict = {}  # dictionary to hold in sample technical values stats
 
     # 2) Get and process training set
@@ -156,9 +220,18 @@ if __name__ == "__main__":
     test.to_csv('Data/%s_test_norms.csv' % sym[0],index=False,encoding='utf-8', header=False)
 
     # 3) Send test and train data to model
-    SendtoModel(train_df=train, test_df=test, model='knn', symbol=sym, verbose=True, k=3)
+    pred_test_returns = SendtoModel(train_df=train, test_df=test, model='knn', symbol=sym, verbose=True, k=3)
+
+    #merge predicted retuns with dates
+    pred_return_df = pd.DataFrame(pred_test_returns, index = test.index, columns=['predY_returns'])
+
+    # 4) Create list of orders from predictions
+    create_5day_orders(pred_return_df, sym=sym)
+    #create_rolling_orders(pred_return_df, sym=sym)
 
     # 5) Run orders through market simulators
+    sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day.csv', gen_plot=False, strat_name='5day_KNN')
+
 
     # 65) output first graphs or is this task embedded in other areas?
     # predicts 5 days ahead, and always closes its position 5 days after opening it:
