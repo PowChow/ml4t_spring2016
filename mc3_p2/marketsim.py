@@ -17,7 +17,6 @@ def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
     #################################################################################################
     def execute_orders(in_orders, in_start_date, in_end_date):
         syms = list(in_orders.Symbol.unique())
-        print syms
 
         df_prices = get_data(syms, pd.date_range(in_start_date, in_end_date), addSPY=True)
         df_prices.drop(['SPY'], axis=1, inplace=True) #drop index prices after using it to get trading only days
@@ -95,7 +94,7 @@ def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
 
     return portval2
 
-def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, strat_name="BB"):
+def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=False, strat_name="BB"):
 
     rfr = 0.0
     sf = 252.0

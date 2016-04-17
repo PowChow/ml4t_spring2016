@@ -19,38 +19,9 @@ import matplotlib.pyplot as plt
 import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
-from util import get_data
+from util import get_data, plot_lines_data, plot_strategy, plot_backtest
 from marketsim import sims_output, compute_portvals
 
-#####################################################
-############## PLOTS ################################
-#####################################################
-def plot_lines_data(price_norm, actualY, predY, name='default'):
-
-    # price_norm.to_csv('price_norm.csv')
-    # actualY.to_csv('actualY.csv')
-    # predY.to_csv('predY.csv')
-    ax = price_norm.plot(title=name, label='Norm Price')
-    actualY.plot(label='Actual Price', color='green', ax=ax)
-    predY.plot(label='Predicted Price', color='crimson', ax=ax)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Normalized Values")
-    ax.legend(loc='lower left', labels=['Price Norm', 'Actual Y', 'Predicted Y'])
-    #plt.show()
-    fig = ax.get_figure()
-    fig.savefig('./Output/%s_lines.png' % name)
-
-
-#####################################################
-############## CALCULATIONS #########################
-#####################################################
-
-def get_bollinger_bands(rm, rstd):
-    """Return upper and lower Bollinger Bands."""
-    # Add 2sd above and below the rolling mean
-    upper_band = rm + (2*rstd)
-    lower_band = rm - (2*rstd)
-    return upper_band, lower_band
 
 def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
     """
@@ -139,12 +110,13 @@ def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol=
         predY_test = learner.query(testX) # get the predictions
         rmse_test = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
 
-        #output graphs
+        #output graphs - normalized lines
         plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
-                  name='in_sample_%s' % model)
+                  name='in_sample_%s' % model, exitentry=False, symbol=symbol)
         plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
-                  name='out_sample_%s' % model)
+                  name='out_sample_%s' % model, exitentry=False, symbol=symbol)
 
+        #outputgraphs - with entry and exit points
 
 
         if verbose:
@@ -208,7 +180,7 @@ def create_5day_orders(df, sym='IBM'):
 
     with open('./Orders/%s_knn_orders_5day.csv' % sym[0], 'w+') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(['Date','Symbol','Order','Shares', 'Type'])
+        writer.writerow(['Date','Symbol','Order','Shares', 'Type', 'Strat'])
 
         for i in xrange(0, len(df), 5):
             # Orders Output -- trading policies or strategies
@@ -219,13 +191,17 @@ def create_5day_orders(df, sym='IBM'):
 
             if df['predY_returns'][i] >= .01:
                 # Date, Symbol, Order, Shares
-                writer.writerow([trade_date, sym[0], 'BUY', 100, 'Entry'])
-                writer.writerow([curr_date, sym[0], 'SELL', 100, 'Exit'])
+                writer.writerow([trade_date, sym[0], 'BUY', 100, 'Entry', 'Long'])
+                writer.writerow([curr_date, sym[0], 'SELL', 100, 'Exit', 'Long'])
             elif df['predY_returns'][i] <= -.01:
-                writer.writerow([trade_date, sym[0], 'SELL', 100, 'Entry'])
-                writer.writerow([curr_date, sym[0], 'BUY', 100, 'Exit'])
+                writer.writerow([trade_date, sym[0], 'SELL', 100, 'Entry','Short'])
+                writer.writerow([curr_date, sym[0], 'BUY', 100, 'Exit', 'Short'])
             else:
                 pass
+
+######################################################
+############## EXECUTION #############################
+######################################################
 
 if __name__ == "__main__":
     # 1) Set constants
@@ -233,7 +209,7 @@ if __name__ == "__main__":
     in_sample_dict = {}  # dictionary to hold in sample technical values stats
 
     # 2) Get and process training set
-    # sym = ['IBM']
+    #sym = ['IBM']
     sym = ['ML4T-220']
     is_start_dt = dt.datetime(2007, 12, 31)
     is_end_dt = dt.datetime(2009, 12, 31)
@@ -263,14 +239,18 @@ if __name__ == "__main__":
     #print train_data[[sym, 'price_norm']]
 
     # 4a) Create orders from prediction - in sample??
-    #TODO
 
     # 4b) Create orders from predictions - out of sample
     #merge predicted retuns with dates & SPY
     pred_return_df = pd.DataFrame(pred_test_returns, index = test.index, columns=['predY_returns'])
     returns_df = pd.concat([oos_spy_df, pred_return_df], axis=1)
     create_5day_orders(returns_df, sym=sym)
-    #create_rolling_orders(pred_return_df, sym=sym)
+    #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
+
+    #output graphs for entry and exit signals, plot trading strategy
+    plot_strategy(price=train_data[sym], of='./Orders/ML4T-220_knn_orders_5day.csv', name='%s_out_sample' % sym[0])
+
+
 
     # 5) Run orders through market simulators
     sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day.csv', gen_plot=False, strat_name='5day_KNN')
