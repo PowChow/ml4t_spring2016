@@ -179,8 +179,8 @@ def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol=
         #output graphs - normalized lines
         # plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
         #           name='%s_in_sample_%s' % (symbol[0], model))
-        # plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
-        #           name='%s_out_sample_%s' % (symbol[0], model))
+        plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
+                  name='%s_out_sample_%s' % (symbol[0], model))
 
 
         if verbose:
@@ -274,8 +274,8 @@ if __name__ == "__main__":
     in_sample_dict = {}  # dictionary to hold in sample technical values stats
 
     # 2) Get and process training set
-    #sym = ['IBM']
-    sym = ['ML4T-220']
+    sym = ['IBM']
+    #sym = ['ML4T-220']
     is_start_dt = dt.datetime(2007, 12, 31)
     is_end_dt = dt.datetime(2009, 12, 31)
     is_df = get_data(sym, pd.date_range(is_start_dt, is_end_dt)) #returns symbol with closing prices
@@ -319,27 +319,11 @@ if __name__ == "__main__":
 
 
     # 5) Run orders through market simulators and output back testing graph
-    sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day_insample.csv', gen_plot=True,
-                symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
+    # sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day_insample.csv', gen_plot=True,
+    #             symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
 
-    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_%s.csv' % (sym, 'insample'), symbol=sym,
-    #             gen_plot=False, strat_name='5day_KNN')
+    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_outsample.csv' % (sym, 'outsample'), symbol=sym,
+    #             gen_plot=False, strat_name='5day_KNN_%s_%s'% (sym[0], 'outsample'))
 
-
-    # 6) output first graphs or is this task embedded in other areas?
-    # predicts 5 days ahead, and always closes its position 5 days after opening it:
-    # extra credit -- rolling variation of KNN, add a feature in KNNlearner with rolling=True
-
-
-
-#market sim
-# create function to create csv of orders for back testing
-# send to trading simulator / back testing
-# calcuate 5-day relative return, Y
-
-
-# send testing set to test predictions
-
-#output graph
 
 
