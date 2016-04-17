@@ -307,7 +307,7 @@ if __name__ == "__main__":
     # a) in sample
     returns_train_df = pd.concat([is_spy_df, pd.DataFrame(pred_train_Y, index = train.index, columns=['predY_returns'])], axis=1)
     create_5day_orders(returns_train_df, sym=sym, type='insample')
-    plot_strategy(price=is_df[sym], of='./Orders/ML4T-220_knn_orders_5day_insample.csv', name='%s_in_sample' % sym[0])
+    # plot_strategy(price=is_df[sym], of='./Orders/ML4T-220_knn_orders_5day_insample.csv', name='%s_in_sample' % sym[0])
 
 
     # b) out of sample
@@ -318,10 +318,12 @@ if __name__ == "__main__":
     #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
 
 
+    # 5) Run orders through market simulators and output back testing graph
+    sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_%s.csv' % (sym[0], 'insample'),
+                gen_plot=True, strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
 
-
-    # 5) Run orders through market simulators
-    sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day.csv', gen_plot=False, strat_name='5day_KNN')
+    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_%s.csv' % (sym, 'insample'), symbol=sym,
+    #             gen_plot=False, strat_name='5day_KNN')
 
 
     # 6) output first graphs or is this task embedded in other areas?
