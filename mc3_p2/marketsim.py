@@ -94,11 +94,10 @@ def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
 
     return portval2
 
-def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, strat_name="KNN"):
+def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, symbol='ML4T-220', strat_name="KNN"):
 
     rfr = 0.0
     sf = 252.0
-    symbol = 'ML4T-220'
 
     # Process orders
     portvals = compute_portvals(orders_file=of, start_val=sv)
@@ -120,7 +119,7 @@ def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, strat_name
     sharpe_ratio = (np.mean(daily_port_rets - rfr) / daily_port_rets.std()) * np.sqrt(sf)
 
     #symbol normalization, i.e. ML4T-220 or IBM
-    prices_sym = get_data(symbol, pd.date_range(start_date, end_date), addSPY=False)
+    prices_sym = get_data([symbol], pd.date_range(start_date, end_date), addSPY=False)
     prices_sym_norm = prices_sym / prices_sym.ix[0]
     daily_port_rets_sym = ((prices_sym / prices_sym.shift(1)) - 1)[1:]
     cum_ret_sym = (prices_sym.iloc[-1] / prices_sym.iloc[0]) -1  #cumulative returns of portfolio value

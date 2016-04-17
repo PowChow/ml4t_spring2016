@@ -319,8 +319,8 @@ if __name__ == "__main__":
 
 
     # 5) Run orders through market simulators and output back testing graph
-    sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_%s.csv' % (sym[0], 'insample'),
-                gen_plot=True, strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
+    sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day_insample.csv', gen_plot=True,
+                symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
 
     # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_%s.csv' % (sym, 'insample'), symbol=sym,
     #             gen_plot=False, strat_name='5day_KNN')
