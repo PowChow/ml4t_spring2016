@@ -62,9 +62,9 @@ def plot_strategy(price, of='./Orders/orders.csv', name='default'):
 
     # Plot vertical lines for shorts
     for i in range(0, len(orders)):
-        if (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Exit'):
+        if (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Entry'):
             ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
-        elif (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Entry'):
+        elif (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Exit'):
             ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
         elif (orders.ix[i]['Strat'] == 'Long') and (orders.ix[i]['Type'] == 'Entry'):
             ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
@@ -76,9 +76,6 @@ def plot_strategy(price, of='./Orders/orders.csv', name='default'):
     plt.show()
     fig = ax.get_figure()
     fig.savefig('./Output/%s_strategy_exitentry.png' % (name))
-
-def plot_backtest():
-    pass
 
 
 #########################################################
@@ -140,8 +137,8 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
     df.dropna(how='any', inplace=True)
 
     # printing for debugging
-    print df.head(10)
-    print df.describe()
+    #print df.head(10)
+    #print df.describe()
 
     if in_sample:
         return df, is_values
@@ -179,8 +176,8 @@ def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol=
         #output graphs - normalized lines
         # plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
         #           name='%s_in_sample_%s' % (symbol[0], model))
-        plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
-                  name='%s_out_sample_%s' % (symbol[0], model))
+        # plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
+        #           name='%s_out_sample_%s' % (symbol[0], model))
 
 
         if verbose:
@@ -270,12 +267,12 @@ def create_5day_orders(df, sym='IBM', type='insample'):
 
 if __name__ == "__main__":
     # 1) Set constants
-    start_val = 1000000
+    start_val = 10000
     in_sample_dict = {}  # dictionary to hold in sample technical values stats
 
     # 2) Get and process training set
-    sym = ['IBM']
-    #sym = ['ML4T-220']
+    #sym = ['IBM']
+    sym = ['ML4T-220']
     is_start_dt = dt.datetime(2007, 12, 31)
     is_end_dt = dt.datetime(2009, 12, 31)
     is_df = get_data(sym, pd.date_range(is_start_dt, is_end_dt)) #returns symbol with closing prices
@@ -307,23 +304,23 @@ if __name__ == "__main__":
     # a) in sample
     returns_train_df = pd.concat([is_spy_df, pd.DataFrame(pred_train_Y, index = train.index, columns=['predY_returns'])], axis=1)
     create_5day_orders(returns_train_df, sym=sym, type='insample')
-    # plot_strategy(price=is_df[sym], of='./Orders/ML4T-220_knn_orders_5day_insample.csv', name='%s_in_sample' % sym[0])
+    # plot_strategy(price=is_df[sym], of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], name='%s_in_sample' % sym[0])
 
 
     # b) out of sample
     returns_test_df = pd.concat([oos_spy_df, pd.DataFrame(pred_test_Y, index = test.index, columns=['predY_returns'])], axis=1)
     create_5day_orders(returns_test_df, sym=sym, type='outsample')
-    #plot_strategy(price=oos_df[sym], of='./Orders/ML4T-220_knn_orders_5day_outsample.csv', name='%s_out_sample' % sym[0])
+    plot_strategy(price=oos_df[sym], of='./Orders/%s_knn_orders_5day_outsample.csv' % sym[0], name='%s_out_sample' % sym[0])
 
     #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
 
 
     # 5) Run orders through market simulators and output back testing graph
-    # sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day_insample.csv', gen_plot=True,
+    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], gen_plot=True,
     #             symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
 
-    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_outsample.csv' % (sym, 'outsample'), symbol=sym,
-    #             gen_plot=False, strat_name='5day_KNN_%s_%s'% (sym[0], 'outsample'))
+    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_outsample.csv' % sym[0], symbol=sym[0],
+    #             gen_plot=True, strat_name='5day_KNN_%s_%s'% (sym[0], 'outsample'))
 
 
 

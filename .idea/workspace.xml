@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="336bc271-6bf7-4cd8-86c6-df6f9f8ea484" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/mc3_p2/Output/5day_KNN_ML4T-220_x_comparison_chart.png" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png" afterPath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png" afterPath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/preprocess.py" afterPath="$PROJECT_DIR$/mc3_p2/preprocess.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -29,7 +30,7 @@
       <file leaf-file-name="marketsim.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mc3_p2/marketsim.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="-10.0">
               <caret line="121" column="34" selection-start-line="121" selection-start-column="34" selection-end-line="121" selection-end-column="34" />
               <folding>
                 <element signature="e#33#52#0" expanded="true" />
@@ -53,8 +54,8 @@
       <file leaf-file-name="preprocess.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mc3_p2/preprocess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.69298244">
-              <caret line="186" column="0" selection-start-line="186" selection-start-column="0" selection-end-line="186" selection-end-column="0" />
+            <state vertical-scroll-proportion="8.989547">
+              <caret line="269" column="21" selection-start-line="269" selection-start-column="21" selection-end-line="269" selection-end-column="21" />
               <folding>
                 <element signature="e#87#105#0" expanded="true" />
               </folding>
@@ -373,11 +374,11 @@
     <frame x="0" y="23" width="1366" height="728" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34918034" sideWeight="0.4886459" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39508197" sideWeight="0.4886459" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32843137" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25576207" sideWeight="0.49423394" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21784386" sideWeight="0.49423394" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.292196" sideWeight="0.50576603" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32843137" sideWeight="0.5113541" order="7" side_tool="true" content_ui="tabs" />
@@ -457,42 +458,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/mc2_p2/output/mfi_df.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3195266">
-          <caret line="6" column="72" selection-start-line="6" selection-start-column="72" selection-end-line="6" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc2_p2/output/mfi_strategy.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc2_p2/output/bb_strategy.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc2_p2/output/bb_rsi_strategy.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc2_p2/my_strategy_MFI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="91" column="0" selection-start-line="91" selection-start-column="0" selection-end-line="91" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc2_p2/output/bb_rsi_orders.csv">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21492538">
-          <caret line="4" column="15" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mc2_p2/my_strategy_BB_RSI.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="1.0208955">
@@ -713,11 +678,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mc3_p2/Orders/ML4T-220_knn_orders_5day.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -730,11 +690,6 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="10" column="38" selection-start-line="0" selection-start-column="0" selection-end-line="10" selection-end-column="38" />
         </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mc2_p2/marketsim.py">
@@ -751,16 +706,6 @@
           <caret line="31" column="0" selection-start-line="31" selection-start-column="2" selection-end-line="36" selection-end-column="16" />
           <folding>
             <element signature="e#26#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mc3_p2/marketsim.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.0">
-          <caret line="121" column="34" selection-start-line="121" selection-start-column="34" selection-end-line="121" selection-end-column="34" />
-          <folding>
-            <element signature="e#33#52#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -793,10 +738,66 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Orders/IBM_knn_orders_5day_insample.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.40650406">
+          <caret line="10" column="33" selection-start-line="0" selection-start-column="0" selection-end-line="10" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/IBM_in_sample_strategy_exitentry.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/IBM_out_sample_strategy_exitentry.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/5day_KNN_IBM_insample_comparison_chart.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/marketsim.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.0">
+          <caret line="121" column="34" selection-start-line="121" selection-start-column="34" selection-end-line="121" selection-end-column="34" />
+          <folding>
+            <element signature="e#33#52#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Orders/IBM_knn_orders_5day_outsample.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.15337424">
+          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="8" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/5day_KNN_IBM_outsample_comparison_chart.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mc3_p2/preprocess.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.69298244">
-          <caret line="186" column="0" selection-start-line="186" selection-start-column="0" selection-end-line="186" selection-end-column="0" />
+        <state vertical-scroll-proportion="8.989547">
+          <caret line="269" column="21" selection-start-line="269" selection-start-column="21" selection-end-line="269" selection-end-column="21" />
           <folding>
             <element signature="e#87#105#0" expanded="true" />
           </folding>
