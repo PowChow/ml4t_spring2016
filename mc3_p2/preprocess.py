@@ -19,9 +19,71 @@ import matplotlib.pyplot as plt
 import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
-from util import get_data, plot_lines_data, plot_strategy, plot_backtest
+from util import get_data
 from marketsim import sims_output, compute_portvals
 
+######################################################
+############## PLOTTING #############################
+######################################################
+
+def plot_lines_data(price_norm, actualY, predY, name='default'):
+    """
+    Plots three normalized values: normalized price, actual Y, and predicted Y
+    Outputs the graph as PNG
+    """
+    ax = price_norm.plot(title=name, label='Norm Price')
+    actualY.plot(label='Actual Price', color='green', ax=ax)
+    predY.plot(label='Predicted Price', color='crimson', ax=ax)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Normalized Values")
+    ax.legend(loc='lower left', labels=['Price Norm', 'Actual Y', 'Predicted Y'])
+
+    print 'Actual Y stats: ', actualY.describe()
+    print 'Predicted Y stats: ', predY.describe()
+
+    #plt.show()
+    fig = ax.get_figure()
+    fig.savefig('./Output/%s_lines.png' % (name))
+
+
+def plot_strategy(price, of='./Orders/orders.csv', name='default'):
+    """
+    Plots Symbol Price Data with Entry and Exit for
+    Short and Long Trading Strategies based on Learner
+    """
+    #print price.head(10)
+
+    orders = pd.read_csv(of)
+    ax = price.plot(title=name, label='Price')
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Prices")
+    ax.legend().set_visible(False)
+
+
+    # Plot vertical lines for shorts
+    for i in range(0, len(orders)):
+        if (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Exit'):
+            ax.axvline(orders.ix[i]['Date'], color='r', linestyle='solid')
+        elif (orders.ix[i]['Strat'] == 'Short') and (orders.ix[i]['Type'] == 'Entry'):
+            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+        elif (orders.ix[i]['Strat'] == 'Long') and (orders.ix[i]['Type'] == 'Entry'):
+            ax.axvline(orders.ix[i]['Date'], color='green', linestyle='solid')
+        elif (orders.ix[i]['Strat'] == 'Long') and (orders.ix[i]['Type'] == 'Exit'):
+            ax.axvline(orders.ix[i]['Date'], color='black', linestyle='solid')
+        else:
+            pass
+
+    plt.show()
+    fig = ax.get_figure()
+    fig.savefig('./Output/%s_strategy_exitentry.png' % (name))
+
+def plot_backtest():
+    pass
+
+
+#########################################################
+############## CALCULATIONS #############################
+#########################################################
 
 def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
     """
@@ -111,12 +173,10 @@ def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol=
         rmse_test = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
 
         #output graphs - normalized lines
-        plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
-                  name='in_sample_%s' % model, exitentry=False, symbol=symbol)
-        plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
-                  name='out_sample_%s' % model, exitentry=False, symbol=symbol)
-
-        #outputgraphs - with entry and exit points
+        # plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
+        #           name='%s_in_sample_%s' % (symbol[0], model))
+        # plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
+        #           name='%s_out_sample_%s' % (symbol[0], model))
 
 
         if verbose:
@@ -248,8 +308,7 @@ if __name__ == "__main__":
     #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
 
     #output graphs for entry and exit signals, plot trading strategy
-    plot_strategy(price=train_data[sym], of='./Orders/ML4T-220_knn_orders_5day.csv', name='%s_out_sample' % sym[0])
-
+    plot_strategy(price=oos_df[sym], of='./Orders/ML4T-220_knn_orders_5day.csv', name='%s_out_sample' % sym[0])
 
 
     # 5) Run orders through market simulators

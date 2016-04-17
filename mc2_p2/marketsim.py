@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 import datetime as dt
-from util import get_data, plot_data
+from util import get_data #, plot_data
 
 def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
@@ -92,7 +92,7 @@ def compute_portvals(orders_file = "./orders/orders.csv", start_val = 1000000):
 
     return portval2
 
-def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True, strat_name="BB"):
+def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=False, strat_name="BB"):
 
     rfr = 0.0
     sf = 252.0
@@ -140,14 +140,14 @@ def sims_output(sv=1000000, of= "./output/orders.csv", gen_plot=True, strat_name
     print
     print "Final Portfolio Value: {}".format(portvals[-1])
 
-    if gen_plot:
-        #Plots comparison between IBM and $SPY
-        df_temp = pd.concat([portval_norm, prices_SPY_norm], keys=['Portfolio', '$SPY'], axis=1)
-        df_temp.dropna(inplace=True)
-        ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=False)
-        ax.legend(loc='upper left', labels=['Portfolio', '$SPY'])
-        fig = ax.get_figure()
-        fig.savefig('output/%s_comparison_chart.png' % strat_name)
+    # if gen_plot:
+    #     #Plots comparison between IBM and $SPY
+    #     df_temp = pd.concat([portval_norm, prices_SPY_norm], keys=['Portfolio', '$SPY'], axis=1)
+    #     df_temp.dropna(inplace=True)
+    #     ax = df_temp.plot(title = 'Daily Porfolio Value and SPY', grid=False)
+    #     ax.legend(loc='upper left', labels=['Portfolio', '$SPY'])
+    #     fig = ax.get_figure()
+    #     fig.savefig('output/%s_comparison_chart.png' % strat_name)
 
 
 def test_code():
