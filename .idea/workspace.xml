@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="336bc271-6bf7-4cd8-86c6-df6f9f8ea484" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png" afterPath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_in_sample_strategy_exitentry.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png" afterPath="$PROJECT_DIR$/mc3_p2/Output/ML4T-220_out_sample_strategy_exitentry.png" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mc3_p2/readme.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mc3_p2/preprocess.py" afterPath="$PROJECT_DIR$/mc3_p2/preprocess.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -42,7 +41,7 @@
       <file leaf-file-name="util.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mc3_p2/util.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
+            <state vertical-scroll-proportion="-5.4074073">
               <caret line="31" column="0" selection-start-line="31" selection-start-column="2" selection-end-line="36" selection-end-column="16" />
               <folding>
                 <element signature="e#26#35#0" expanded="true" />
@@ -54,11 +53,21 @@
       <file leaf-file-name="preprocess.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mc3_p2/preprocess.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="8.989547">
-              <caret line="269" column="21" selection-start-line="269" selection-start-column="21" selection-end-line="269" selection-end-column="21" />
+            <state vertical-scroll-proportion="7.6793895">
+              <caret line="312" column="51" selection-start-line="312" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
               <folding>
                 <element signature="e#87#105#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="readme.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mc3_p2/readme.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -94,6 +103,7 @@
         <option value="$PROJECT_DIR$/mc3_p2/util.py" />
         <option value="$PROJECT_DIR$/mc3_p2/marketsim.py" />
         <option value="$PROJECT_DIR$/mc3_p2/preprocess.py" />
+        <option value="$PROJECT_DIR$/mc3_p2/readme.txt" />
       </list>
     </option>
   </component>
@@ -374,7 +384,7 @@
     <frame x="0" y="23" width="1366" height="728" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39508197" sideWeight="0.4886459" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22131148" sideWeight="0.4886459" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32843137" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -458,13 +468,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/mc2_p2/my_strategy_BB_RSI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.0208955">
-          <caret line="125" column="28" selection-start-line="125" selection-start-column="28" selection-end-line="125" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mc2_p2/my_strategy.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.40895522">
@@ -700,16 +703,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mc3_p2/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="2" selection-end-line="36" selection-end-column="16" />
-          <folding>
-            <element signature="e#26#35#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mc3_p2/Output/5day_KNN_ML4T-220_insample_comparison_chart.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -794,10 +787,28 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.4074073">
+          <caret line="31" column="0" selection-start-line="31" selection-start-column="2" selection-end-line="36" selection-end-column="16" />
+          <folding>
+            <element signature="e#26#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mc3_p2/readme.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mc3_p2/preprocess.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="8.989547">
-          <caret line="269" column="21" selection-start-line="269" selection-start-column="21" selection-end-line="269" selection-end-column="21" />
+        <state vertical-scroll-proportion="7.6793895">
+          <caret line="312" column="51" selection-start-line="312" selection-start-column="0" selection-end-line="313" selection-end-column="0" />
           <folding>
             <element signature="e#87#105#0" expanded="true" />
           </folding>

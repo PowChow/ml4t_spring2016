@@ -310,7 +310,7 @@ if __name__ == "__main__":
     # b) out of sample
     returns_test_df = pd.concat([oos_spy_df, pd.DataFrame(pred_test_Y, index = test.index, columns=['predY_returns'])], axis=1)
     create_5day_orders(returns_test_df, sym=sym, type='outsample')
-    plot_strategy(price=oos_df[sym], of='./Orders/%s_knn_orders_5day_outsample.csv' % sym[0], name='%s_out_sample' % sym[0])
+    # plot_strategy(price=oos_df[sym], of='./Orders/%s_knn_orders_5day_outsample.csv' % sym[0], name='%s_out_sample' % sym[0])
 
     #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
 
