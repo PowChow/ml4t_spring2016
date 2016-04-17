@@ -19,9 +19,31 @@ import matplotlib.pyplot as plt
 import LinRegLearner as lrl
 import BagLearner as bl
 import KNNLearner as knn
-from util import get_data, plot_data
+from util import get_data
 from marketsim import sims_output, compute_portvals
 
+#####################################################
+############## PLOTS ################################
+#####################################################
+def plot_lines_data(price_norm, actualY, predY, name='default'):
+
+    # price_norm.to_csv('price_norm.csv')
+    # actualY.to_csv('actualY.csv')
+    # predY.to_csv('predY.csv')
+    ax = price_norm.plot(title=name, label='Norm Price')
+    actualY.plot(label='Actual Price', color='green', ax=ax)
+    predY.plot(label='Predicted Price', color='crimson', ax=ax)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Normalized Values")
+    ax.legend(loc='lower left', labels=['Price Norm', 'Actual Y', 'Predicted Y'])
+    #plt.show()
+    fig = ax.get_figure()
+    fig.savefig('./Output/%s_lines.png' % name)
+
+
+#####################################################
+############## CALCULATIONS #########################
+#####################################################
 
 def get_bollinger_bands(rm, rstd):
     """Return upper and lower Bollinger Bands."""
@@ -69,6 +91,9 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
         is_values['vol_std'] = np.float(df['vol'].std())
         is_values['bb_mean'] = np.float(df['bb'].mean())
         is_values['bb_std'] = np.float(df['bb'].std())
+        is_values['price_mean'] = np.float(df[sym].mean())
+        is_values['price_std'] = np.float(df[sym].std())
+
     else:
         pass
 
@@ -77,7 +102,7 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
     df['sma_norm'] = (df['sma'] - is_values['sma_mean'])/is_values['sma_std']
     df['vol_norm'] = (df['vol'] - is_values['vol_mean'])/is_values['vol_std']
     df['bb_norm'] = df['bb']
-
+    df['price_norm'] =(df[sym] - is_values['price_mean'])/is_values['price_std']
 
     df.dropna(how='any', inplace=True)
 
@@ -91,7 +116,7 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
         return df
 
 
-def SendtoModel(train_df, test_df, model='knn', symbol='IBM', k=3, bags=0, verbose=False):
+def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol='IBM', k=3, bags=0, verbose=False):
 
     #calculate training and test sets
     trainX = np.array(train_df.iloc[0:,0:-1])
@@ -114,6 +139,14 @@ def SendtoModel(train_df, test_df, model='knn', symbol='IBM', k=3, bags=0, verbo
         predY_test = learner.query(testX) # get the predictions
         rmse_test = math.sqrt(((testY - predY_test) ** 2).sum()/testY.shape[0])
 
+        #output graphs
+        plot_lines_data(price_norm=train_price, actualY=train_df.iloc[0:,-1], predY=pd.Series(predY_train, index=train_df.index),
+                  name='in_sample_%s' % model)
+        plot_lines_data(price_norm=test_price, actualY=test_df.iloc[0:,-1], predY=pd.Series(predY_test, index=test_df.index),
+                  name='out_sample_%s' % model)
+
+
+
         if verbose:
             #(a) in sample results
             print model, 'with arguments k=%s, bags=%s' % (k, bags)
@@ -121,8 +154,6 @@ def SendtoModel(train_df, test_df, model='knn', symbol='IBM', k=3, bags=0, verbo
             print "RMSE: ", rmse_train
             c = np.corrcoef(predY_train, y=trainY)
             print "corr: ", c[0,1]
-            #create graph in sample comparing predicted and actual
-            #plot_scatter(predY_train, trainY, 'in_sample', model)
 
             #(b) out of sample results
             print
@@ -173,23 +204,26 @@ def create_5day_orders(df, sym='IBM'):
     :param: sym generate orders, buys and sells, for symbol
     returns: outputs list of orders, returns nothing
     """
+    #returns_only = df['predY_returns'].dropna(how='any', inplace=False)
+
     with open('./Orders/%s_knn_orders_5day.csv' % sym[0], 'w+') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(['Date','Symbol','Order','Shares' ])
+        writer.writerow(['Date','Symbol','Order','Shares', 'Type'])
 
         for i in xrange(0, len(df), 5):
             # Orders Output -- trading policies or strategies
             curr_date = dt.datetime.strftime(df.index[i], '%Y-%m-%d')
-            trade_date = df.index[i] - pd.Timedelta(days=4)
+            trade_date = df.index[i-4]
             trade_date = dt.datetime.strftime(trade_date, '%Y-%m-%d')
+            #print curr_date, trade_date
 
             if df['predY_returns'][i] >= .01:
                 # Date, Symbol, Order, Shares
-                writer.writerow([trade_date, sym[0], 'BUY', 100])
-                writer.writerow([curr_date, sym[0], 'SELL', 100])
+                writer.writerow([trade_date, sym[0], 'BUY', 100, 'Entry'])
+                writer.writerow([curr_date, sym[0], 'SELL', 100, 'Exit'])
             elif df['predY_returns'][i] <= -.01:
-                writer.writerow([trade_date, sym[0], 'SELL', 100])
-                writer.writerow([curr_date, sym[0], 'BUY', 100])
+                writer.writerow([trade_date, sym[0], 'SELL', 100, 'Entry'])
+                writer.writerow([curr_date, sym[0], 'BUY', 100, 'Exit'])
             else:
                 pass
 
@@ -204,6 +238,7 @@ if __name__ == "__main__":
     is_start_dt = dt.datetime(2007, 12, 31)
     is_end_dt = dt.datetime(2009, 12, 31)
     is_df = get_data(sym, pd.date_range(is_start_dt, is_end_dt)) #returns symbol with closing prices
+    is_spy_df = is_df['SPY']
     is_mean = np.float(is_df[sym].mean())
     is_sd = np.float(is_df[sym].std())
 
@@ -214,26 +249,34 @@ if __name__ == "__main__":
     train.to_csv('Data/%s_train_norms.csv' % sym[0], index=False, encoding='utf-8', header=False)
 
     #B ######TESTING DATA
+    oos_df = get_data(sym, pd.date_range(dt.datetime(2009, 12, 31), dt.datetime(2011, 12, 31))) #returns symbol with closing prices
+    oos_spy_df = oos_df['SPY']
     test_data = preprocess_data(sym=sym, sdate=dt.datetime(2009, 12, 31), edate=dt.datetime(2011, 12, 31),
                                 in_sample=False, is_values=in_sample_dict)
     test = test_data[['momentum_norm', 'sma_norm', 'vol_norm', 'bb', 'daily_ret']]
     test.to_csv('Data/%s_test_norms.csv' % sym[0],index=False,encoding='utf-8', header=False)
 
     # 3) Send test and train data to model
-    pred_test_returns = SendtoModel(train_df=train, test_df=test, model='knn', symbol=sym, verbose=True, k=3)
+    pred_test_returns = SendtoModel(train_df=train, train_price=train_data['price_norm'],
+                                    test_df=test, test_price=test_data['price_norm'],
+                                    model='knn', symbol=sym, verbose=True, k=3)
+    #print train_data[[sym, 'price_norm']]
 
-    #merge predicted retuns with dates
+    # 4a) Create orders from prediction - in sample??
+    #TODO
+
+    # 4b) Create orders from predictions - out of sample
+    #merge predicted retuns with dates & SPY
     pred_return_df = pd.DataFrame(pred_test_returns, index = test.index, columns=['predY_returns'])
-
-    # 4) Create list of orders from predictions
-    create_5day_orders(pred_return_df, sym=sym)
+    returns_df = pd.concat([oos_spy_df, pred_return_df], axis=1)
+    create_5day_orders(returns_df, sym=sym)
     #create_rolling_orders(pred_return_df, sym=sym)
 
     # 5) Run orders through market simulators
     sims_output(sv=start_val, of='./Orders/ML4T-220_knn_orders_5day.csv', gen_plot=False, strat_name='5day_KNN')
 
 
-    # 65) output first graphs or is this task embedded in other areas?
+    # 6) output first graphs or is this task embedded in other areas?
     # predicts 5 days ahead, and always closes its position 5 days after opening it:
     # extra credit -- rolling variation of KNN, add a feature in KNNlearner with rolling=True
 
