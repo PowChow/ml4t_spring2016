@@ -150,6 +150,10 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
 
 
 def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol='IBM', k=3, bags=0, verbose=False):
+    """
+    Sends test and train data frame to selected model
+    Returns predicted test Y and train Y
+    """
 
     #calculate training and test sets
     trainX = np.array(train_df.iloc[0:,0:-1])
@@ -200,7 +204,7 @@ def SendtoModel(train_df, train_price, test_df, test_price, model='knn', symbol=
         else:
             pass
 
-        return predY_test
+        return predY_train, predY_test
 
 def create_rolling_orders(predY_df, sym='IBM'):
     """
@@ -230,7 +234,7 @@ def create_rolling_orders(predY_df, sym='IBM'):
             else:
                 pass
 
-def create_5day_orders(df, sym='IBM'):
+def create_5day_orders(df, sym='IBM', type='insample'):
     """
     :param: pred_returns set of predicted returns with dates
     :param: sym generate orders, buys and sells, for symbol
@@ -238,7 +242,7 @@ def create_5day_orders(df, sym='IBM'):
     """
     #returns_only = df['predY_returns'].dropna(how='any', inplace=False)
 
-    with open('./Orders/%s_knn_orders_5day.csv' % sym[0], 'w+') as csvfile:
+    with open('./Orders/%s_knn_orders_5day_%s.csv' % (sym[0], type ), 'w+') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(['Date','Symbol','Order','Shares', 'Type', 'Strat'])
 
@@ -258,6 +262,7 @@ def create_5day_orders(df, sym='IBM'):
                 writer.writerow([curr_date, sym[0], 'BUY', 100, 'Exit', 'Short'])
             else:
                 pass
+
 
 ######################################################
 ############## EXECUTION #############################
@@ -293,22 +298,26 @@ if __name__ == "__main__":
     test.to_csv('Data/%s_test_norms.csv' % sym[0],index=False,encoding='utf-8', header=False)
 
     # 3) Send test and train data to model
-    pred_test_returns = SendtoModel(train_df=train, train_price=train_data['price_norm'],
+    pred_train_Y, pred_test_Y = SendtoModel(train_df=train, train_price=train_data['price_norm'],
                                     test_df=test, test_price=test_data['price_norm'],
                                     model='knn', symbol=sym, verbose=True, k=3)
-    #print train_data[[sym, 'price_norm']]
 
-    # 4a) Create orders from prediction - in sample??
 
-    # 4b) Create orders from predictions - out of sample
-    #merge predicted retuns with dates & SPY
-    pred_return_df = pd.DataFrame(pred_test_returns, index = test.index, columns=['predY_returns'])
-    returns_df = pd.concat([oos_spy_df, pred_return_df], axis=1)
-    create_5day_orders(returns_df, sym=sym)
+    # 4) Create orders from predictions by merging predicted Y-returns with SPY-dates
+    # a) in sample
+    returns_train_df = pd.concat([is_spy_df, pd.DataFrame(pred_train_Y, index = train.index, columns=['predY_returns'])], axis=1)
+    create_5day_orders(returns_train_df, sym=sym, type='insample')
+    plot_strategy(price=is_df[sym], of='./Orders/ML4T-220_knn_orders_5day_insample.csv', name='%s_in_sample' % sym[0])
+
+
+    # b) out of sample
+    returns_test_df = pd.concat([oos_spy_df, pd.DataFrame(pred_test_Y, index = test.index, columns=['predY_returns'])], axis=1)
+    create_5day_orders(returns_test_df, sym=sym, type='outsample')
+    #plot_strategy(price=oos_df[sym], of='./Orders/ML4T-220_knn_orders_5day_outsample.csv', name='%s_out_sample' % sym[0])
+
     #create_rolling_orders(pred_return_df, sym=sym)  #TODO extra credit
 
-    #output graphs for entry and exit signals, plot trading strategy
-    plot_strategy(price=oos_df[sym], of='./Orders/ML4T-220_knn_orders_5day.csv', name='%s_out_sample' % sym[0])
+
 
 
     # 5) Run orders through market simulators
