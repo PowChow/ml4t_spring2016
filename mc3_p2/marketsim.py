@@ -151,7 +151,7 @@ def sims_output(sv=1000000, of= "./Orders/orders.csv", gen_plot=True, symbol='ML
         ax = df_temp.plot(title = 'Back Test Portfolio and Symbol Prices: %s' % strat_name, grid=False)
         ax.legend(loc='upper left', labels=['Portfolio', symbol])
         fig = ax.get_figure()
-        fig.savefig('output/%s_comparison_chart.png' % strat_name)
+        fig.savefig('./Output/%s_comparison_chart.png' % strat_name)
 
 
 if __name__ == "__main__":

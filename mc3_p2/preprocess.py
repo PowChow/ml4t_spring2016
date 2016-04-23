@@ -5,15 +5,13 @@ KNN Stock Return Predictor and Trading Strategy
 """
 import numpy as np
 import math
-import time
 import datetime as dt
 import pandas as pd
 import csv
-from pandas.tseries.offsets import BDay
 
 
-import matplotlib as mpl
-mpl.use('TkAgg')
+#import matplotlib as mpl
+#mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
 import LinRegLearner as lrl
@@ -100,16 +98,16 @@ def preprocess_data(sym, sdate, edate, in_sample=False, is_values={}):
     df['t+1'] = df[sym].shift(-1)  # shifts forwards, looks backwards 1 day
 
     # calculate technical features
-    df['momentum'] = (df[sym]/df['t-N']) - 1.0              # measures the rise and fall of stock, strength and weakness of current price
-    df['sma'] = pd.rolling_mean(df[sym], window=5)          # define current direction with a lag - smooth price action and filter out noise
-    df['daily_ret'] = (df['t+N']/df[sym]) - 1.0             # change in price in 5 days
+    df['momentum'] = df.apply(lambda x: (x[sym]/x['t-N']) - 1.0, axis=1)
+    df['sma'] = pd.rolling_mean(df[sym], window=5)          # define current direction with a lag - smooth price action and filter out nois
+    df['daily_ret'] = df.apply(lambda x: (x['t+N']/x[sym]) - 1.0, axis=1)
+    #df['daily_ret'] = (df['t+N']/df[sym]) - 1.0             # change in price in 5 days
     df['vol'] = pd.rolling_std(df['daily_ret'], window=5)   # amont of variability or dispersion around the average -- evaluate risk and signifigance of price movement
     df['bb_upper_band'] = df['sma'] + (2*df['vol'])
     df['bb_lower_band'] = df['sma'] - (2*df['vol'])
     #df['bb'] = (df[sym] - df['sma'])/((df['bb_upper_band']-df['bb_lower_band'])/2)  #range of volatility from sma
     df['bb'] = (df[sym] - pd.rolling_mean(df[sym], window=5))\
                /(2* pd.rolling_std(df[sym], window=5) )  #range of volatility from sma
-
 
     if in_sample:
         is_values = {}
@@ -304,7 +302,7 @@ if __name__ == "__main__":
     # a) in sample
     returns_train_df = pd.concat([is_spy_df, pd.DataFrame(pred_train_Y, index = train.index, columns=['predY_returns'])], axis=1)
     create_5day_orders(returns_train_df, sym=sym, type='insample')
-    # plot_strategy(price=is_df[sym], of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], name='%s_in_sample' % sym[0])
+    #plot_strategy(price=is_df[sym], of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], name='%s_in_sample' % sym[0])
 
 
     # b) out of sample
@@ -316,8 +314,8 @@ if __name__ == "__main__":
 
 
     # 5) Run orders through market simulators and output back testing graph
-    # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], gen_plot=True,
-    #             symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
+    sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_insample.csv' % sym[0], gen_plot=True,
+                 symbol=sym[0], strat_name='5day_KNN_%s_%s'% (sym[0], 'insample'))
 
     # sims_output(sv=start_val, of='./Orders/%s_knn_orders_5day_outsample.csv' % sym[0], symbol=sym[0],
     #             gen_plot=True, strat_name='5day_KNN_%s_%s'% (sym[0], 'outsample'))
