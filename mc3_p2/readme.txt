@@ -10,9 +10,9 @@ File for project
 ------------------------------
 1. readme.txt (description of files and execution)
 2. util.py (function to download data)
-4. preprocess.py (download data, calculate technical features and create visualizations, and output orders for in and out of sample)
-5. KNNLearner.py (KNN model learner, output of predicted Y values)
-6. marketsim.py (calculates portfolio values with order files and back test graphs)
+3. preprocess.py (download data, calculate technical features and create visualizations, and output orders for in and out of sample)
+4. KNNLearner.py (KNN model learner, output of predicted Y values)
+5. marketsim.py (calculates portfolio values with order files and back test graphs)
 
 
 Order of execution for Project
