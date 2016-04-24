@@ -65,10 +65,13 @@ class QLearner(object):
     def hallucinate(self):
 
         for i in range(0,self.dyna):
+            #print 'entering dyna'
             rand_s = rand.sample(xrange(self.num_states), 1)
             rand_a = rand.sample(xrange(self.num_actions), 1)
 
-            dyna_s_prime = self.T_tbl[rand_s, rand_a, :].argmax()
+            #dyna_s_prime = self.T_tbl[rand_s, rand_a, :][0].argmax()
+            dyna_s_prime = np.random.multinomial(1, self.T_tbl[rand_s, rand_a, :][0]).argmax()
+
             dyna_r = self.R_tbl[rand_s,rand_a]
 
 
