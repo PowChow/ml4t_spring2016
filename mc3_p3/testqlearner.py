@@ -103,9 +103,19 @@ if __name__=="__main__":
 
     learner = ql.QLearner(num_states=100,\
         num_actions = 4, \
+        alpha = 0.2, \
+        gamma = 0.9, \
         rar = 0.98, \
         radr = 0.9999, \
+        dyna = 0,
         verbose=verbose) #initialize the learner
+
+    #sample iteration
+    # s = 99
+    # a = learner.querysetstate(s)
+    # s_prime = 5
+    # r = 0
+    # next_action = learner.query(s_prime, r)
 
     #each iteration involves one trip to the goal
     for iteration in range(0,10000): 
