@@ -87,10 +87,12 @@ def discretize(pos):
 # run the code to test a learner
 if __name__=="__main__":
 
-    verbose = True #print lots of debug stuff if True
+    verbose = False #print lots of debug stuff if True
 
     # read in the map
+    #inf = open('testworlds/world01.csv')
     inf = open('testworlds/world01.csv')
+
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
     originalmap = data.copy() #make a copy so we can revert to the original map later
 
@@ -105,6 +107,7 @@ if __name__=="__main__":
         num_actions = 4, \
         alpha = 0.2, \
         gamma = 0.9, \
+        rar = 0.5, \
         radr = 0.9999, \
         dyna = 0,
         verbose=verbose) #initialize the learner
@@ -117,7 +120,7 @@ if __name__=="__main__":
     # next_action = learner.query(s_prime, r)
 
     #each iteration involves one trip to the goal
-    for iteration in range(0,10000): 
+    for iteration in range(0,500):
         steps = 0
         data = originalmap.copy()
         robopos = startpos
