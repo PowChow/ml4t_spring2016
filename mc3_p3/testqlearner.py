@@ -87,7 +87,7 @@ def discretize(pos):
 # run the code to test a learner
 if __name__=="__main__":
 
-    verbose = False #print lots of debug stuff if True
+    verbose = True #print lots of debug stuff if True
 
     # read in the map
     inf = open('testworlds/world01.csv')
@@ -105,7 +105,6 @@ if __name__=="__main__":
         num_actions = 4, \
         alpha = 0.2, \
         gamma = 0.9, \
-        rar = 0.98, \
         radr = 0.9999, \
         dyna = 0,
         verbose=verbose) #initialize the learner

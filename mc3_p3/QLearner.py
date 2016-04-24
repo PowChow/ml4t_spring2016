@@ -17,9 +17,7 @@ class QLearner(object):
         dyna = 0, \
         verbose = False):
 
-        self.Q = {} # track states and actions: generate random uniform values -1.0 and 1.0
-                    # how many tuples are expected? # states? np.random.uniform(low=-1.0, high=1.0, size=num_states)
-
+        self.Q_tbl = np.random.uniform(-1.0, 1.0, size=(num_states, num_actions))
         self.verbose = verbose
         self.num_actions = num_actions
         self.num_states = num_states
@@ -40,7 +38,13 @@ class QLearner(object):
 
         #same logic as query
         self.s = s
-        action = rand.randint(0, self.num_actions-1)
+
+        if rand.random() < self.rar:
+            action = rand.randint(0, self.num_actions-1)
+        else:
+            action = np.argmax(self.Q_tbl[s,])
+
+
         if self.verbose: print "s =", s,"a =",action
         return action
 
@@ -51,46 +55,33 @@ class QLearner(object):
         @param r: The new state
         @returns: The selected action
         """
+        # 1) Decay Random Action Rate
+        self.rar = self.rar * self.radr # decay rar with radr
 
-        #get q value based on s_prime and set of actions, get max q
-        q = [self.Q(s_prime, act) for act in self.num_actions]
+        # 2) Update Q'[s,a]
+        q = [self.Q_tbl[self.s, act] for act in range(0, self.num_actions)]
         maxq = max(q)
-
-        # choose random action with probability self.rar
-        if random.random() < self.rar:
-            #action = rand.randint(0, self.num_actions-1)\
-            #use the range of q values
-            minq = min(q)
-            mag = max(abs(minq), abs(maxq))
-
-            # attribute random values to all possible actions, now recalculate maxq value
-            q = [q[i] + random.random() * mag - .5 * mag for i in range(len(self.actions))]
-            maxq = max(q)
 
         # check if there is more than one action with maxq value, if so, pick one at random
         count = q.count(maxq)
         if count > 1:
-            rbest = [i for i in range(len(self.num_actions)) if q[i] == maxq]
-            i = random.choice(rbest)
+            rbest = [i for i in range(0,len(self.num_actions)) if q[i] == maxq]
+            action = rand.choice(rbest)
         else:
-            i = q.index(maxq)
+            action = q.index(maxq)
 
-        #attribute new action with maxq - either randomly assigned or by looking up in Q Table
-        action = self.num_actions[i]
-        self.rar = self.rar * self.radr # decay rar with radr
+        value = (1-self.alpha) * r + self.alpha * (r + self.gamma * maxq)
+        self.Q_tbl[s_prime, action] = value
 
-        #update Q table values
-        value = r + self.gamma * q
-        oldq = self.Q.get((self.s, self.a))
+        # 3) Choose random action with probability self.rar
+        if rand.random() < self.rar:
+            action = rand.randint(0, self.num_actions-1)
+            print 'this one is random'
 
-        if oldq is None:
-            self.Q[(self.s, self.a, s_prime, action)] = r
-        else:
-            self.Q[(self.s, self.a, s_prime, action)] = oldq + self.alpha * (value - oldq)
 
-        if self.verbose: print "s =", s_prime,"a =",action,"r =",r
+        if self.verbose: print "s =", s_prime,"a =",action,"r =",r, "s'=", s_prime, "r':", value
 
-        # reset "previous" state to "new" values
+        # 4) update learner values to prime_s and prime_a
         self.s = s_prime
         self.a = action
 
