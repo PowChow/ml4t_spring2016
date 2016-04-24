@@ -40,6 +40,9 @@ class QLearner(object):
         self.R_tbl = np.full(shape=(num_states, num_actions),
                              fill_value=.00001, dtype=float)# prob rewards in state a, take action a
 
+        #remember number of real world examples exposed to by the model
+        self.step = 0
+
     def querysetstate(self, s):
         """
         @summary: Update the state without updating the Q-table
@@ -61,15 +64,20 @@ class QLearner(object):
 
     def hallucinate(self):
 
-        for d in range(0,self.dyna):
-            rand_s = rand.sample(xrange(num_states), 1)
-            rand_a = rand.sample(xrange(num_actions), 1)
+        for i in range(0,self.dyna):
+            rand_s = rand.sample(xrange(self.num_states), 1)
+            rand_a = rand.sample(xrange(self.num_actions), 1)
 
-                # s' = infer from T[]
-                # r = R[s,a]
-                # Update Q table with hallucinated
+            dyna_s_prime = self.T_tbl[rand_s, rand_a, :].argmax()
+            dyna_r = self.R_tbl[rand_s,rand_a]
 
-            #return -- don't think i will return anything
+
+            #Update Q table with rand_s, rand_a, s_prime, reward
+            dyna_maxq_prime = np.max(self.Q_tbl[dyna_s_prime,])
+            q_update = ((1-self.alpha) * self.Q_tbl[rand_s, rand_a]) + \
+                (self.alpha * (dyna_r + self.gamma * dyna_maxq_prime))
+
+            self.Q_tbl[rand_s, rand_a] = q_update
 
 
     def query(self,s_prime,r):
@@ -101,15 +109,19 @@ class QLearner(object):
                 (self.alpha * (r + self.gamma * maxq_prime))
         self.Q_tbl[self.s, action] = q_new
 
-        #### ADD IN DYNA Q TABLES AND HALLUCINATIONS
-        #2b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
+        # ADD IN DYNA Q TABLES AND HALLUCINATIONS
+        # 2b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
         self.Tcount[self.s, action, s_prime] += 1
         self.T_tbl[self.s, action, :] = self.Tcount[self.s, action, :] / \
                                         self.Tcount[self.s, action, :].sum()
 
         #2c) Update R'[s,a]
-        self.R_tbl[self.a, action] = ((1-self.alpha) * self.R_tbl[self.a, action]) + \
+        self.R_tbl[self.s, action] = ((1-self.alpha) * self.R_tbl[self.a, action]) + \
                                      (self.alpha * r)
+
+        # hallucinate dyna examples, if learner has encountered at least 5 real world examples
+        if (self.dyna > 0 and self.step > 5): self.hallucinate()
+
 
         # 3) Choose random action with probability self.rar
         if rand.random() < self.rar:
@@ -121,6 +133,7 @@ class QLearner(object):
         # 4) update learner values to prime_s and prime_a
         self.s = s_prime
         self.a = action
+        self.step += 1
 
 
 
