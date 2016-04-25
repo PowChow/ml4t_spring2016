@@ -40,7 +40,8 @@ class QLearner(object):
         self.R_tbl = np.full(shape=(num_states, num_actions),
                              fill_value=.00001, dtype=float)# prob rewards in state a, take action a
 
-        #remember number of real world examples exposed to by the model
+        # stores real world examples exposed to by the model
+        self.real = []
         self.step = 0
 
     def querysetstate(self, s):
@@ -59,28 +60,32 @@ class QLearner(object):
 
         self.s = s
         self.a = action
+        self.step = 0
 
         return action
 
     def hallucinate(self):
 
-        for i in range(0,self.dyna):
-            #print 'entering dyna'
-            rand_s = rand.sample(xrange(self.num_states), 1)
-            rand_a = rand.sample(xrange(self.num_actions), 1)
+        for i in range(0, self.dyna):
 
-            #dyna_s_prime = self.T_tbl[rand_s, rand_a, :][0].argmax()
-            dyna_s_prime = np.random.multinomial(1, self.T_tbl[rand_s, rand_a, :][0]).argmax()
+            random = rand.choice(self.real)
+            rand_s = random[0]
+            rand_a = random[1]
+
+            #dyna_s_prime = self.T_tbl[rand_s, rand_a, :].argmax()
+            #print dyna_s_prime
+            dyna_s_prime = np.random.multinomial(1, self.T_tbl[rand_s, rand_a, :]).argmax()
+
+            dyna_maxq_prime = np.max(self.Q_tbl[dyna_s_prime,])
 
             dyna_r = self.R_tbl[rand_s,rand_a]
 
-
             #Update Q table with rand_s, rand_a, s_prime, reward
-            dyna_maxq_prime = np.max(self.Q_tbl[dyna_s_prime,])
             q_update = ((1-self.alpha) * self.Q_tbl[rand_s, rand_a]) + \
                 (self.alpha * (dyna_r + self.gamma * dyna_maxq_prime))
 
             self.Q_tbl[rand_s, rand_a] = q_update
+            #print 'rand_s: ', rand_s, 'rand_a: ', rand_a, 'q_update: ', q_update
 
 
     def query(self,s_prime,r):
@@ -90,21 +95,18 @@ class QLearner(object):
         @param r: The new state
         @returns: The selected action
         """
-        # 1) Decay Random Action Rate
-        self.rar = self.rar * self.radr # decay rar with radr
-
-        # 2) Updates Tables
-        # 2a) Update Q'[s,a]
-        q = [self.Q_tbl[self.s, act] for act in range(0, self.Q_tbl.shape[1])]
-        maxq = max(q)
+        # 1) Updates Tables
+        # a) Update Q'[s,a]
+        q_state = [self.Q_tbl[self.s, act] for act in range(0, self.Q_tbl.shape[1])]
+        maxq = max(q_state)
 
         # check if there is more than one action with maxq value, if so, pick one at random
-        count = q.count(maxq)
+        count = q_state.count(maxq)
         if count > 1:
-            rmax = [i for i in range(0,len(q)) if q[i] == maxq]
+            rmax = [i for i in range(0,len(q_state)) if q_state[i] == maxq]
             action = rand.choice(rmax)
         else:
-            action = np.argmax(q)
+            action = np.argmax(q_state)
 
         maxq_prime = np.max(self.Q_tbl[s_prime,])
         a_prime = np.argmax(self.Q_tbl[s_prime,])
@@ -112,34 +114,38 @@ class QLearner(object):
                 (self.alpha * (r + self.gamma * maxq_prime))
         self.Q_tbl[self.s, action] = q_new
 
-        # ADD IN DYNA Q TABLES AND HALLUCINATIONS
-        # 2b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
+
+        # b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
         self.Tcount[self.s, action, s_prime] += 1
         self.T_tbl[self.s, action, :] = self.Tcount[self.s, action, :] / \
                                         self.Tcount[self.s, action, :].sum()
 
-        #2c) Update R'[s,a]
+        # c) Update R'[s,a]
         self.R_tbl[self.s, action] = ((1-self.alpha) * self.R_tbl[self.a, action]) + \
                                      (self.alpha * r)
 
-        # hallucinate dyna examples, if learner has encountered at least 5 real world examples
-        if (self.dyna > 0 and self.step > 5): self.hallucinate()
+        self.real.append((self.s, action, s_prime, r)) #remember encountered examples to randomize
+        self.step +=1
 
+        # d) hallucinate dyna examples, if learner has encountered at least 5 real world examples
+        if (self.dyna > 0 and len(self.real) > 5): self.hallucinate()
 
-        # 3) Choose random action with probability self.rar
+        # 2) Choose random action with probability self.rar
         if rand.random() < self.rar:
             action = rand.randint(0, self.num_actions-1)
             #print 'this one is random'
 
-        if self.verbose: print "s =", s_prime,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
 
-        # 4) update learner values to prime_s and prime_a
+        if self.verbose:
+            print "s =", s_prime,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
+            print self.Q_tbl
+
+        # 3) update learner values to prime_s and prime_a
         self.s = s_prime
         self.a = action
-        self.step += 1
 
-
-
+        # 4) Decay Random Action Rate
+        self.rar = self.rar * self.radr # decay rar with radr
         return action
 
 if __name__=="__main__":
