@@ -54,13 +54,12 @@ class QLearner(object):
         if rand.random() < self.rar:
             action = rand.randint(0, self.num_actions-1)
         else:
-            action = np.argmax(self.Q_tbl[self.s,])
+            action = np.argmax(self.Q_tbl[s,])
 
         if self.verbose: print "s =", s,"a =",action
 
         self.s = s
         self.a = action
-        self.step = 0
 
         return action
 
@@ -97,7 +96,7 @@ class QLearner(object):
         """
         # 1) Updates Tables
         # a) Update Q'[s,a]
-        q_state = [self.Q_tbl[self.s, act] for act in range(0, self.Q_tbl.shape[1])]
+        q_state = [self.Q_tbl[s_prime, act] for act in range(0, self.Q_tbl.shape[1])]
         maxq = max(q_state)
 
         # check if there is more than one action with maxq value, if so, pick one at random
@@ -108,11 +107,9 @@ class QLearner(object):
         else:
             action = np.argmax(q_state)
 
-        maxq_prime = np.max(self.Q_tbl[s_prime,])
-        a_prime = np.argmax(self.Q_tbl[s_prime,])
-        q_new = ((1-self.alpha) * self.Q_tbl[self.s, action]) + \
-                (self.alpha * (r + self.gamma * maxq_prime))
-        self.Q_tbl[self.s, action] = q_new
+        q_new = ((1-self.alpha) * self.Q_tbl[self.s, self.a]) + \
+                (self.alpha * (r + self.gamma * maxq))
+        self.Q_tbl[self.s, self.a] = q_new
 
 
         # b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
@@ -133,11 +130,11 @@ class QLearner(object):
         # 2) Choose random action with probability self.rar
         if rand.random() < self.rar:
             action = rand.randint(0, self.num_actions-1)
-            #print 'this one is random'
+            if self.verbose: print 'this action is random'
 
 
         if self.verbose:
-            print "s =", s_prime,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
+            print "s =", self.s,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
             print self.Q_tbl
 
         # 3) update learner values to prime_s and prime_a
@@ -146,6 +143,7 @@ class QLearner(object):
 
         # 4) Decay Random Action Rate
         self.rar = self.rar * self.radr # decay rar with radr
+
         return action
 
 if __name__=="__main__":
