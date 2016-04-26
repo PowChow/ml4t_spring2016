@@ -91,7 +91,7 @@ if __name__=="__main__":
     verbose = False #print lots of debug stuff if True
 
     # read in the map
-    inf = open('testworlds/world10.csv')
+    inf = open('testworlds/world01.csv')
     #inf = open('testworlds/world00.csv')
 
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
@@ -112,7 +112,7 @@ if __name__=="__main__":
         gamma = 0.9, \
         rar = 0.5, \
         radr = 0.9999, \
-        dyna = 0,
+        dyna = 200,
         verbose=verbose) #initialize the learner
 
     #sample iteration

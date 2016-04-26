@@ -76,6 +76,8 @@ class QLearner(object):
             dyna_s_prime = np.random.multinomial(1, self.T_tbl[rand_s, rand_a, :]).argmax()
 
             dyna_maxq_prime = np.max(self.Q_tbl[dyna_s_prime,])
+            #dyna_maxq_prime = self.T_tbl[rand_s, rand_a, dyna_s_prime]
+
 
             dyna_r = self.R_tbl[rand_s,rand_a]
 
@@ -113,15 +115,15 @@ class QLearner(object):
 
 
         # b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
-        self.Tcount[self.s, action, s_prime] += 1
-        self.T_tbl[self.s, action, :] = self.Tcount[self.s, action, :] / \
-                                        self.Tcount[self.s, action, :].sum()
+        self.Tcount[self.s, self.a, s_prime] += 1
+        self.T_tbl[self.s, self.a, :] = self.Tcount[self.s, self.a, :] / \
+                                        self.Tcount[self.s, self.a, :].sum()
 
         # c) Update R'[s,a]
-        self.R_tbl[self.s, action] = ((1-self.alpha) * self.R_tbl[self.a, action]) + \
+        self.R_tbl[self.s, self.a] = ((1-self.alpha) * self.R_tbl[self.a, self.a]) + \
                                      (self.alpha * r)
 
-        self.real.append((self.s, action, s_prime, r)) #remember encountered examples to randomize
+        self.real.append((self.s, self.a, s_prime, r)) #remember encountered examples to randomize
         self.step +=1
 
         # d) hallucinate dyna examples, if learner has encountered at least 5 real world examples
@@ -131,7 +133,6 @@ class QLearner(object):
         if rand.random() < self.rar:
             action = rand.randint(0, self.num_actions-1)
             if self.verbose: print 'this action is random'
-
 
         if self.verbose:
             print "s =", self.s,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
