@@ -1,4 +1,5 @@
 import StrategyLearner as sl
+import datetime as dt
 
 
 # run the code to test a learner
@@ -6,7 +7,7 @@ if __name__=="__main__":
 
     verbose = False
 
-    for iteration in range(0,500):
+    for iteration in range(0,1):
 
         learner = sl.StrategyLearner(verbose = verbose) # constructor
 
