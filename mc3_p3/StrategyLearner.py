@@ -129,9 +129,10 @@ class StrategyLearner(object):
 
         # Calculate daily portfolio value
         df['price_norm'] = df[symbol] / df[symbol].ix[0]
-        df['portval'] = df['price_norm'] * 100
+        df['portval'] = df['price_norm'] * 10
         df['portval_yesterday'] = df['portval'].shift(1)
         df['daily_price_norm'] = df['portval'] / df['portval_yesterday']
+        #print df.head()
 
         if self.verbose: print df.head()
 
@@ -143,20 +144,20 @@ class StrategyLearner(object):
                 # state = +0 do nothing
                 n_state =  str(df.ix[i, 'state'])+'0'
                 self.trade_tbl[n_state, '0'] = 0
-                self.trade_tbl[n_state, '1'] = 0
-                self.trade_tbl[n_state, '2'] = 0
+                self.trade_tbl[n_state, '1'] = df.ix[i, 'daily_ret']
+                self.trade_tbl[n_state, '2'] = df.ix[i, 'daily_ret'] * -1
 
                 # state = +1 long
                 b_state = str(df.ix[i, 'state'])+'1'
-                self.trade_tbl[b_state, '0'] = 0
-                self.trade_tbl[b_state, '1'] = -100
+                self.trade_tbl[b_state, '0'] = 0.5
+                self.trade_tbl[b_state, '1'] = -100000
                 self.trade_tbl[b_state, '2'] = df.ix[i, 'daily_ret']
 
                 # state = +2 short
                 s_state = str(df.ix[i, 'state'])+'2'
-                self.trade_tbl[s_state, '0'] = 0
+                self.trade_tbl[s_state, '0'] = 0.5
                 self.trade_tbl[s_state, '1'] = df.ix[i, 'daily_ret'] * -1
-                self.trade_tbl[s_state, '2'] = -100
+                self.trade_tbl[s_state, '2'] = -100000
 
         #print self.trade_tbl
 
