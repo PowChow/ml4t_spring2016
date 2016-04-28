@@ -132,6 +132,7 @@ class StrategyLearner(object):
         df['portval'] = df['price_norm'] * 100
         df['portval_yesterday'] = df['portval'].shift(1)
         df['daily_price_norm'] = df['portval'] / df['portval_yesterday']
+
         if self.verbose: print df.head()
 
         for i in range(0, len(df)):
@@ -157,7 +158,7 @@ class StrategyLearner(object):
                 self.trade_tbl[s_state, '1'] = df.ix[i, 'daily_ret'] * -1
                 self.trade_tbl[s_state, '2'] = -100
 
-        print self.trade_tbl
+        #print self.trade_tbl
 
     def getAction(self, s_prime):
         """

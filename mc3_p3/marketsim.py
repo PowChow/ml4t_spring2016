@@ -5,9 +5,9 @@ import numpy as np
 import datetime as dt
 from util import get_data
 
-import matplotlib as mpl
-mpl.use('TkAgg')
-import matplotlib.pyplot as plt
+#import matplotlib as mpl
+#mpl.use('TkAgg')
+import matplotlib as plt
 
 def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
     # this is the function the autograder will call to test your code
@@ -79,7 +79,7 @@ def compute_portvals(orders_file = "./Orders/orders.csv", start_val = 1000000):
         df_portval = df_value.sum(axis=1)
         df_portval.dropna(how='any', inplace=True)
 
-        print df_portval.head()
+        #print df_portval.head()
         return df_leverage, df_portval
     #################################################################################################
 

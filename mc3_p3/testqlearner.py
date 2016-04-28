@@ -91,7 +91,7 @@ if __name__=="__main__":
     verbose = False #print lots of debug stuff if True
 
     # read in the map
-    inf = open('testworlds/world01.csv')
+    inf = open('testworlds/world03.csv')
     #inf = open('testworlds/world00.csv')
 
     data = np.array([map(float,s.strip().split(',')) for s in inf.readlines()])
@@ -147,5 +147,7 @@ if __name__=="__main__":
             if verbose: time.sleep(1)
             steps += 1
 
-        print iteration, "," , steps
+        if verbose: print iteration, "," , steps
+
+    print iteration, "," , steps
     printmap(data)

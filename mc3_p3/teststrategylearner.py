@@ -37,7 +37,6 @@ if __name__=="__main__":
 
                 trade_dt = df_trades.index[i].strftime('%Y-%m-%d')
 
-
                 if df_trades.ix[i, 'action'] == 1:
                     # Date, Symbol, Order, Shares
                     writer.writerow([trade_dt, symbol, 'BUY', 100])
