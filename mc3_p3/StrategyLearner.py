@@ -9,6 +9,7 @@ import csv
 from util import get_data
 import datetime as dt
 import pandas as pd
+import random as rand
 
 class StrategyLearner(object):
 
@@ -18,12 +19,14 @@ class StrategyLearner(object):
         ############## initialize values ##############
         self.num_actions = 3 # 0) No Action, 1) Buy, 2) Sell
         self.num_states = 10000 * 7 # number of technical indicators: 3 indicators @ discretized to 0-9 + holding state
-
+        self.s = 0 # first state is 0 or the first trading day
+        self.a = 0
+        self.holding = 0 #do nothing in the first holding state
 
         self.trade_tbl = np.random.uniform(-1.0, 1.0, size=(self.num_states, self.num_actions)) #rewards or daily return
 
 
-    def calc_tech(self, data):
+    def calcFeatures(self, data):
         """
         function pulls data set for particular homework or trading symbol
     
@@ -114,15 +117,13 @@ class StrategyLearner(object):
 
         """
 
-        # self.s = 0 # first state is 0 or the first trading day
-        # self.a = 0 # first action is nothing
         # self.alpha = np.float(alpha)
         # self.gamma = np.float(gamma)
         self.symbol = symbol
 
         data = get_data([symbol], pd.date_range(sd, ed)) #returns symbol with closing prices
 
-        df = self.calc_tech(data) #returns states and daily returns
+        df = self.calcFeatures(data) #returns states and daily returns
         #df['yesterday'] = df[symbol].shift(1)
         #print df.head()
 
@@ -131,7 +132,7 @@ class StrategyLearner(object):
         df['portval'] = df['price_norm'] * 100
         df['portval_yesterday'] = df['portval'].shift(1)
         df['daily_price_norm'] = df['portval'] / df['portval_yesterday']
-        print df.head()
+        if self.verbose: print df.head()
 
         for i in range(0, len(df)):
             # calculate daily portfolio values for each state and action
@@ -144,74 +145,69 @@ class StrategyLearner(object):
                 self.trade_tbl[n_state, '1'] = 0
                 self.trade_tbl[n_state, '2'] = 0
 
-                # state = +1 buy
+                # state = +1 long
                 b_state = str(df.ix[i, 'state'])+'1'
                 self.trade_tbl[b_state, '0'] = 0
-                #self.trade_tbl[b_state, '1'] = df[i,'daily_ret'] # in this scenario cannot buy while already holding
-                self.trade_tbl[b_state, '2'] = df.ix[i,'daily_ret']
+                self.trade_tbl[b_state, '1'] = -100
+                self.trade_tbl[b_state, '2'] = df.ix[i, 'daily_ret']
 
-                # state = +2 sell
+                # state = +2 short
                 s_state = str(df.ix[i, 'state'])+'2'
                 self.trade_tbl[s_state, '0'] = 0
-                self.trade_tbl[s_state, '1'] = df.ix[i,'daily_ret'] * -1
-                #self.trade_tbl[s_state, '2'] = df[i,'daily_ret'] * in this scenario cannot sell while holding
+                self.trade_tbl[s_state, '1'] = df.ix[i, 'daily_ret'] * -1
+                self.trade_tbl[s_state, '2'] = -100
 
         print self.trade_tbl
 
-    def getAction(self):
+    def getAction(self, s_prime):
         """
         modify qleaner methdology to select action for trade policy --basically use argmax
         """
-        # 1) Updates Tables
-        # a) Update Q'[s,a]
-        q_state = [self.Q_tbl[s_prime, act] for act in range(0, self.Q_tbl.shape[1])]
-        maxq = max(q_state)
+        # Access Trading Table to get best action per state
+        s_prime_holding = str(s_prime) + str(self.holding)
 
-        # check if there is more than one action with maxq value, if so, pick one at random
-        count = q_state.count(maxq)
+        ls_returns = [self.trade_tbl[s_prime_holding, act] for act in range(0, self.trade_tbl.shape[1])]
+        best_return = max(ls_returns)
+
+        # check if there is more than one action with best_return value, if so, pick one at random
+        count = ls_returns.count(best_return)
         if count > 1:
-            rmax = [i for i in range(0,len(q_state)) if q_state[i] == maxq]
+            rmax = [i for i in range(0,len(ls_returns)) if ls_returns[i] == best_return]
             action = rand.choice(rmax)
         else:
-            action = np.argmax(q_state)
+            action = np.argmax(ls_returns)
 
-        q_new = ((1-self.alpha) * self.Q_tbl[self.s, self.a]) + \
-                (self.alpha * (r + self.gamma * maxq))
-        self.Q_tbl[self.s, self.a] = q_new
+        # Update return values with a formula to discount rewards
 
-
-        # b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
-        self.Tcount[self.s, self.a, s_prime] += 1
-        self.T_tbl[self.s, self.a, :] = self.Tcount[self.s, self.a, :] / \
-                                        self.Tcount[self.s, self.a, :].sum()
-
-        # c) Update R'[s,a]
-        self.R_tbl[self.s, self.a] = ((1-self.alpha) * self.R_tbl[self.a, self.a]) + \
-                                     (self.alpha * r)
-
-        self.real.append((self.s, self.a, s_prime, r)) #remember encountered examples to randomize
-        self.step +=1
-
-        # d) hallucinate dyna examples, if learner has encountered at least 5 real world examples
-        if (self.dyna > 0 and len(self.real) > 5): self.hallucinate()
-
-        # 2) Choose random action with probability self.rar
-        if rand.random() < self.rar:
-            action = rand.randint(0, self.num_actions-1)
-            if self.verbose: print 'this action is random'
+        # 2) Choose random action with probability self.rar (TODO try with random actions)
+        # if rand.random() < self.rar:
+        #     action = rand.randint(0, self.num_actions-1)
+        #     if self.verbose: print 'this action is random'
+        # Decay Random Action Rate
+        # self.rar = self.rar * self.radr # decay rar with radr
 
         if self.verbose:
-            print "s =", self.s,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
-            print self.Q_tbl
+            print "s =", self.s,"a =",action,"best_return =",best_return, "s'=", s_prime_holding
+            #print self.trade_tbl
 
-        # 3) update learner values to prime_s and prime_a
-        self.s = s_prime
-        self.a = action
-
-        # 4) Decay Random Action Rate
-        self.rar = self.rar * self.radr # decay rar with radr
-
-        return action
+        if action == 1 and self.holding == 1:
+            self.s = s_prime_holding
+            self.a = action
+            if action <> 0:
+                self.holding = action
+            return '0', s_prime_holding
+        elif action == 2 and self.holding == 2:
+            self.s = s_prime_holding
+            self.a = action
+            if action <> 0:
+                self.holding = action
+            return '0', s_prime_holding
+        else:
+            self.s = s_prime_holding
+            self.a = action
+            if action <> 0:
+                self.holding = action
+            return action, s_prime_holding
 
 
     def testPolicy(self,symbol, sd, ed, sv):
@@ -225,21 +221,20 @@ class StrategyLearner(object):
         """
 
         data = get_data([symbol], pd.date_range(sd, ed)) #returns symbol with closing prices
-        df = self.calc_tech(data) #returns states and daily returns
+        df = self.calcFeatures(data) #returns states and daily returns
 
         for i in range(0, len(df)):
-            pass
-            # use df state values to get next action
-            # calculate ongoing values
-            # accessing trading table to make decisions when states are similar
-            # make decision based on max trade table value
-            # OUTPUT action to data frame == orders file
+            s_next = df.ix[i, 'state']
+            action, s_holding = self.getAction(s_next)
+            df.ix[i, 'action'] = action
+            df.ix[i, 's_holding'] = s_holding
+
             # backtest order file
+        df['type'] = df.s_holding.apply(lambda x: x[-1:])
 
-        #TODO create output of orders for backtesting
+        if self.verbose: print df[['action', 's_holding', 'type']]
 
-
-        return 'hello'
+        return df[['action']]
 
 if __name__== "__main__":
     main()
