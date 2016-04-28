@@ -15,6 +15,14 @@ class StrategyLearner(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
 
+        ############## initialize values ##############
+        self.num_actions = 3 # 0) No Action, 1) Buy, 2) Sell
+        self.num_states = 10000 * 7 # number of technical indicators: 3 indicators @ discretized to 0-9 + holding state
+
+
+        self.trade_tbl = np.random.uniform(-1.0, 1.0, size=(self.num_states, self.num_actions)) #rewards or daily return
+
+
     def calc_tech(self, data):
         """
         function pulls data set for particular homework or trading symbol
@@ -105,13 +113,6 @@ class StrategyLearner(object):
         @returns: ?? Adds vales to Q table that will be used in testing and trades
 
         """
-        ############## initialize values ##############
-        self.num_actions = 3 # 0) No Action, 1) Buy, 2) Sell
-        self.num_states = 10000 * 3 # number of technical indicators: 3 indicators @ discretized to 0-9 + holding state
-
-
-        self.trade_tbl = np.random.uniform(-1.0, 1.0,
-                                       size=(self.num_states, self.num_actions)) #rewards or daily return
 
         self.s = 0 # first state is 0 or the first trading day
         self.a = 0 # first action is nothing
@@ -121,36 +122,41 @@ class StrategyLearner(object):
 
         data = get_data([symbol], pd.date_range(sd, ed)) #returns symbol with closing prices
 
-        df_tech = self.calc_tech(data) #returns states and daily returns
-        #df_tech['yesterday'] = df_tech[symbol].shift(1)
-        #print df_tech.head()
+        df = self.calc_tech(data) #returns states and daily returns
+        #df['yesterday'] = df[symbol].shift(1)
+        #print df.head()
 
         # Calculate daily portfolio value
-        df_tech['price_norm'] = df_tech[symbol] / df_tech[symbol].ix[0]
-        df_tech['portval'] = df_tech['price_norm'] * sv
-        df_tech['portval_yesterday'] = df_tech['portval'].shift(1)
-        df_tech['daily_price_norm'] = df_tech['portval'] / df_tech['portval_yesterday']
-        print df_tech.head()
+        df['price_norm'] = df[symbol] / df[symbol].ix[0]
+        df['portval'] = df['price_norm'] * 100
+        df['portval_yesterday'] = df['portval'].shift(1)
+        df['daily_price_norm'] = df['portval'] / df['portval_yesterday']
+        print df.head()
 
-        for i in range(0, len(df_tech)):
-            pass
+        for i in range(0, len(df)):
             # calculate daily portfolio values for each state and action
             #hold = 0 #indicates not holding, 1 = long, 2 = short
             #decide how to best update trade_tbl or pandas
+
                 # state = +0 do nothing
-                # self.trade_tbl[str(df[i, 'state'])+'0', '0'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '1'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '2'] =
+                n_state =  str(df.ix[i, 'state'])+'0'
+                self.trade_tbl[n_state, '0'] = 0
+                self.trade_tbl[n_state, '1'] = 0
+                self.trade_tbl[n_state, '2'] = 0
 
                 # state = +1 buy
-                # self.trade_tbl[str(df[i, 'state'])+'0', '0'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '1'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '2'] =
+                b_state = str(df.ix[i, 'state'])+'1'
+                self.trade_tbl[b_state, '0'] = 0
+                #self.trade_tbl[b_state, '1'] = df[i,'daily_ret'] # in this scenario cannot buy while already holding
+                self.trade_tbl[b_state, '2'] = df.ix[i,'daily_ret']
 
                 # state = +2 sell
-                # self.trade_tbl[str(df[i, 'state'])+'0', '0'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '1'] =
-                # self.trade_tbl[str(df[i, 'state'])+'0', '2'] =
+                s_state = str(df.ix[i, 'state'])+'2'
+                self.trade_tbl[s_state, '0'] = 0
+                self.trade_tbl[s_state, '1'] = df.ix[i,'daily_ret'] * -1
+                #self.trade_tbl[s_state, '2'] = df[i,'daily_ret'] * in this scenario cannot sell while holding
+
+        print self.trade_tbl
 
     def testPolicy(self,symbol, sd, ed, sv):
         """
