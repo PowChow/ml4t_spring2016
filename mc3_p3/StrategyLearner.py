@@ -114,10 +114,10 @@ class StrategyLearner(object):
 
         """
 
-        self.s = 0 # first state is 0 or the first trading day
-        self.a = 0 # first action is nothing
-        self.alpha = np.float(alpha)
-        self.gamma = np.float(gamma)
+        # self.s = 0 # first state is 0 or the first trading day
+        # self.a = 0 # first action is nothing
+        # self.alpha = np.float(alpha)
+        # self.gamma = np.float(gamma)
         self.symbol = symbol
 
         data = get_data([symbol], pd.date_range(sd, ed)) #returns symbol with closing prices
@@ -158,6 +158,62 @@ class StrategyLearner(object):
 
         print self.trade_tbl
 
+    def getAction(self):
+        """
+        modify qleaner methdology to select action for trade policy --basically use argmax
+        """
+        # 1) Updates Tables
+        # a) Update Q'[s,a]
+        q_state = [self.Q_tbl[s_prime, act] for act in range(0, self.Q_tbl.shape[1])]
+        maxq = max(q_state)
+
+        # check if there is more than one action with maxq value, if so, pick one at random
+        count = q_state.count(maxq)
+        if count > 1:
+            rmax = [i for i in range(0,len(q_state)) if q_state[i] == maxq]
+            action = rand.choice(rmax)
+        else:
+            action = np.argmax(q_state)
+
+        q_new = ((1-self.alpha) * self.Q_tbl[self.s, self.a]) + \
+                (self.alpha * (r + self.gamma * maxq))
+        self.Q_tbl[self.s, self.a] = q_new
+
+
+        # b) Update T'[s,a,s'] - prob in state s, take action a, will end up in s'
+        self.Tcount[self.s, self.a, s_prime] += 1
+        self.T_tbl[self.s, self.a, :] = self.Tcount[self.s, self.a, :] / \
+                                        self.Tcount[self.s, self.a, :].sum()
+
+        # c) Update R'[s,a]
+        self.R_tbl[self.s, self.a] = ((1-self.alpha) * self.R_tbl[self.a, self.a]) + \
+                                     (self.alpha * r)
+
+        self.real.append((self.s, self.a, s_prime, r)) #remember encountered examples to randomize
+        self.step +=1
+
+        # d) hallucinate dyna examples, if learner has encountered at least 5 real world examples
+        if (self.dyna > 0 and len(self.real) > 5): self.hallucinate()
+
+        # 2) Choose random action with probability self.rar
+        if rand.random() < self.rar:
+            action = rand.randint(0, self.num_actions-1)
+            if self.verbose: print 'this action is random'
+
+        if self.verbose:
+            print "s =", self.s,"a =",action,"r =",r, "s'=", s_prime, "q':", q_new
+            print self.Q_tbl
+
+        # 3) update learner values to prime_s and prime_a
+        self.s = s_prime
+        self.a = action
+
+        # 4) Decay Random Action Rate
+        self.rar = self.rar * self.radr # decay rar with radr
+
+        return action
+
+
     def testPolicy(self,symbol, sd, ed, sv):
         """
         @summary: Test training set to leverage Q table built in addEvidence Method
@@ -168,14 +224,20 @@ class StrategyLearner(object):
         @returns: dataframe with daily actions/trades given Q-table
         """
 
-        #TODO add code to run through states and access Q table, will we need to update Q table here or just used what we learned?
+        data = get_data([symbol], pd.date_range(sd, ed)) #returns symbol with closing prices
+        df = self.calc_tech(data) #returns states and daily returns
+
+        for i in range(0, len(df)):
+            pass
+            # use df state values to get next action
+            # calculate ongoing values
+            # accessing trading table to make decisions when states are similar
+            # make decision based on max trade table value
+            # OUTPUT action to data frame == orders file
+            # backtest order file
+
         #TODO create output of orders for backtesting
-        # run through test data by date
-        # calculate ongoing values
-        # accessing trading table to make decisions when states are similar
-        # make decision based on max trade table value
-        # OUTPUT action to data frame == orders file
-        # backtest order file
+
 
         return 'hello'
 
