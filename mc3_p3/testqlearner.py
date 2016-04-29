@@ -112,7 +112,7 @@ if __name__=="__main__":
         gamma = 0.9, \
         rar = 0.5, \
         radr = 0.9999, \
-        dyna = 200,
+        dyna = 0,
         verbose=verbose) #initialize the learner
 
     #sample iteration
